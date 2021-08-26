@@ -2,6 +2,7 @@
 
 :root {
     --color-primary: #1B55C5;
+    --color-primary-hover: #0364FF;
     --color-primary-light: #DAE8FE;
     --color-red: #E14236;
     --color-purple: #6555C0;
@@ -12,6 +13,7 @@
     --color-orange: #FFA329;
     --color-background: #FFFFFF;
     --color-secondary-background: #F9FBFC;
+    --color-input-background: #FAFBFC;
     --color-divider: #E8EAEE;
     --color-border: #DADDE2;
     --color-primary-text: #162643;
@@ -27,6 +29,7 @@
     --border-radius: 5px;
     --navbar-height: 56px;
     --animation-duration: 200ms;
+    --animation-duration-input: 300ms;
     --content-max-width: 1140px;
     --box-shadow: 0 3px 5px rgba(0, 0, 0, 0.12);
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
@@ -102,6 +105,35 @@ p, span {
     font-size: 1.4rem;
 }
 
+hr {
+    border: 1px solid var(--color-divider);
+    margin: 0;
+    width: 100%;
+}
+
+/* Buttons - Links */
+button {
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius);
+    border: none;
+    color: #fff;
+    padding: 11px 8px;
+    margin: 0;
+    transition: all var(--animation-duration);
+}
+
+    button:hover {
+        background-color: var(--color-primary-hover);
+        cursor: pointer;
+    }
+
+a {
+    color: var(--color-primary-hover);
+    font-size: 1.4rem;
+    font-weight: 400;
+    text-decoration: none;
+}
+
 /*Class to make the component impossible to select*/
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -169,4 +201,69 @@ p, span {
     flex-flow: row;
     font-size: 12px;
     color: #fff;
+}
+
+/* Auth Pages */
+
+.auth-container {
+    background-color: var(--color-secondary-background);
+    height: calc(100vh - var(--navbar-height));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-card {
+    background-color: var(--color-background);
+    padding: 32px 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+
+.text-input {
+    background-color: var(--color-input-background);
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 11px;
+    font-size: 1.5rem;
+    font-weight: 400;
+    transition: all var(--animation-duration-input);
+}
+
+    .text-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: var(--color-gray-text);
+    }
+
+    .text-input::placeholder {
+        color: var(--color-gray-text);
+    }
+
+    .text-input:hover {
+        background-color: var(--color-divider);
+    }
+
+.text-error {
+    color: var(--color-error);
+    font-size: 1.2rem;
+    margin-top: 4px;
+}
+
+.auth-container hr {
+    margin: 20px 0;
 }
