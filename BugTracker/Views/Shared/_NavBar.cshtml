@@ -1,15 +1,41 @@
-﻿<nav class="nav">
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<nav class="nav">
     <div class="nav_content">
-        <div class="nav_logo">
+        @*Logo*@
+        <a class="nav_logo nav_link" asp-area="" asp-controller="Home" asp-action="Index">
             BugTracker
-        </div>
+        </a>
+
+        @*Auth + Profile*@
         <ul class="nav_list">
-            <li class="nav_item">
-                Welcome: Marco Stari
-            </li>
-            <li class="nav_item">
-                <a class="nav_link" asp-area="" asp-controller="" asp-action="">Logout</a>
-            </li>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
+                string fullName = user.FullName;
+
+                <li class="nav_item">
+                    <a id="manage" class="nav_link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hi @fullName!</a>
+                </li>
+                <li class="nav_item">
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li class="nav_item">
+                    <a class="nav_link" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                </li>
+                <li class="nav_item">
+                    <a class="nav_link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                </li>
+            }
+
             <div class="nav_item">
                 <a class="nav_link avatar-small" asp-area="" asp-controller="" asp-action="">M</a>
             </div>

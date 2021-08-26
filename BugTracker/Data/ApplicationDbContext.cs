@@ -12,6 +12,7 @@ namespace BugTracker.Data
 
         }
 
+        public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<TicketStatus> TicketStatus { get; set; }
     }
 }
