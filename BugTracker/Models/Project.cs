@@ -16,16 +16,16 @@ namespace BugTracker.Models
         public string Description { get; set; }
 
         [Required]
-        public int CreatorId { get; set; }
+        public string CreatorId { get; set; }
 
         [ForeignKey("CreatorId")]
-        public AppUser Creator { get; set; }
+        public virtual AppUser Creator { get; set; }
 
         [Required]
-        public int ProjectManagerId { get; set; }
+        public string ProjectManagerId { get; set; }
 
         [ForeignKey("ProjectManagerId")]
-        public AppUser ProjectManager { get; set; }
+        public virtual AppUser ProjectManager { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

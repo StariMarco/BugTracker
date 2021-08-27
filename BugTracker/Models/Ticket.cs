@@ -29,39 +29,39 @@ namespace BugTracker.Models
         public int ProjectId { get; set; }
 
         [ForeignKey("ProjectId")]
-        public Project Project { get; set; }
+        public virtual Project Project { get; set; }
 
         // ReporterId
         [Required]
-        public int ReporterId { get; set; }
+        public string ReporterId { get; set; }
 
         [ForeignKey("ReporterId")]
-        public AppUser Reporter { get; set; }
+        public virtual AppUser Reporter { get; set; }
 
         // DeveloperId
-        public int DeveloperId { get; set; }
+        public string DeveloperId { get; set; }
 
         [ForeignKey("DeveloperId")]
-        public AppUser Developer { get; set; }
+        public virtual AppUser Developer { get; set; }
 
         // ReviewerId
-        public int ReviewerId { get; set; }
+        public string ReviewerId { get; set; }
 
         [ForeignKey("ReviewerId")]
-        public AppUser Reviewer { get; set; }
+        public virtual AppUser Reviewer { get; set; }
 
         // StatusId
         [Required]
         public int StatusId { get; set; }
 
         [ForeignKey("StatusId")]
-        public TicketStatus Status { get; set; }
+        public virtual TicketStatus Status { get; set; }
 
         // PriorityId
         [Required]
         public int PriorityId { get; set; }
 
         [ForeignKey("PriorityId")]
-        public TicketPriority Priority { get; set; }
+        public virtual TicketPriority Priority { get; set; }
     }
 }

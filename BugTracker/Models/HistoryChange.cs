@@ -21,24 +21,24 @@ namespace BugTracker.Models
         public int TicketId { get; set; }
 
         [ForeignKey("TicketId")]
-        public Ticket Ticket { get; set; }
+        public virtual Ticket Ticket { get; set; }
 
         [Required]
         public int ProjectId { get; set; }
 
         [ForeignKey("ProjectId")]
-        public Project Project { get; set; }
+        public virtual Project Project { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public AppUser User { get; set; }
+        public virtual AppUser User { get; set; }
 
         [Required]
         public int ActionTypeId { get; set; }
 
         [ForeignKey("ActionTypeId")]
-        public ActionType ActionType { get; set; }
+        public virtual ActionType ActionType { get; set; }
     }
 }

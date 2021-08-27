@@ -16,15 +16,15 @@ namespace BugTracker.Models
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public AppUser User { get; set; }
+        public virtual AppUser User { get; set; }
 
         [Required]
         public int TicketId { get; set; }
 
         [ForeignKey("TicketId")]
-        public Ticket Ticket { get; set; }
+        public virtual Ticket Ticket { get; set; }
     }
 }

@@ -6,24 +6,24 @@ namespace BugTracker.Models
 {
     public class UserProject
     {
-        [Key]
+        [Key, Column(Order = 0)]
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public AppUser User { get; set; }
+        public virtual AppUser User { get; set; }
 
-        [Key]
+        [Key, Column(Order = 1)]
         [Required]
         public int ProjectId { get; set; }
 
         [ForeignKey("ProjectId")]
-        public Project Project { get; set; }
+        public virtual Project Project { get; set; }
 
         [Required]
         public int ProjectRoleId { get; set; }
 
         [ForeignKey("ProjectRoleId")]
-        public ProjectRole ProjectRole { get; set; }
+        public virtual ProjectRole ProjectRole { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,24 @@ namespace BugTracker.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
+        }
+
+        public ApplicationDbContext() { }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<UserProject>().HasKey(table => new
+            {
+                table.UserId,
+                table.ProjectId
+            });
+
+            foreach (var foreignKey in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+
+            base.OnModelCreating(builder);
         }
 
         public DbSet<AppUser> AppUsers { get; set; }
