@@ -30,7 +30,7 @@
     --navbar-height: 56px;
     --animation-duration: 200ms;
     --animation-duration-input: 300ms;
-    --content-max-width: 1140px;
+    --content-max-width: 900px;
     --box-shadow: 0 3px 5px rgba(0, 0, 0, 0.12);
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
@@ -149,6 +149,18 @@ a {
         margin-bottom: 15px;
     }
 
+.nav-button {
+    background-color: #fff;
+    color: var(--color-primary-text);
+    transition: all 0ms;
+    padding: 9px 8px;
+}
+
+    .nav-button:hover {
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
+    }
+
 /*Class to make the component impossible to select*/
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -158,6 +170,11 @@ a {
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
+}
+
+.container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 /* NavBar */
@@ -284,4 +301,60 @@ a {
 
 .auth-container hr {
     margin: 20px 0;
+}
+
+/* Cards */
+
+.card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+#your-projects-card {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.project-card {
+    max-width: 300px;
+    height: 200px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .project-card h4 {
+        font-weight: 400;
+        margin-top: 8px;
+    }
+
+    .project-card:hover {
+        background-color: #fcfcfc;
+        cursor: pointer;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+        transition: all var(--animation-duration);
+    }
+
+
+/* Projects Page */
+.projects-container {
+    background-color: var(--color-secondary-background);
+    min-height: calc(100vh - var(--navbar-height));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding-top: 4%;
+}
+
+/* Grids */
+.projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 30px 40px;
 }

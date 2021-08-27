@@ -31,10 +31,14 @@
     <None Remove="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
     <None Remove="Microsoft.AspNetCore.Authentication.Facebook" />
     <None Remove="Microsoft.AspNetCore.Authentication.Google" />
+    <None Remove="Data\Repository\" />
+    <None Remove="Data\Repository\IRepository\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="wwwroot\css\" />
+    <Folder Include="Data\Repository\" />
+    <Folder Include="Data\Repository\IRepository\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

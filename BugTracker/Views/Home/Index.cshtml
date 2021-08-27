@@ -2,6 +2,33 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div>
-    <h1>Home</h1>
+<div class="projects-container">
+    <section class="container" style="width: 100%;">
+        <header id="your-projects-card" class="card">
+            <h1>Your Projects</h1>
+            <button id="create-project">Create project</button>
+        </header>
+        <div class="projects-grid">
+            @{
+                List<Project> projects = new List<Project>()
+                    {
+                    new Project{ Id = 0, CreatedAt = DateTime.Now, CreatorId = "0", ProjectManagerId = "0", Title="MyProject"},
+                    new Project{ Id = 1, CreatedAt = DateTime.Now, CreatorId = "1", ProjectManagerId = "1", Title="Project1"},
+                    new Project{ Id = 2, CreatedAt = DateTime.Now, CreatorId = "2", ProjectManagerId = "2", Title="Project2"},
+                    new Project{ Id = 3, CreatedAt = DateTime.Now, CreatorId = "3", ProjectManagerId = "3", Title="Project3"},
+                };
+
+                foreach (var obj in projects)
+                {
+                    <card class="card project-card">
+                        <div class="project-info">
+                            <h2>@obj.Title</h2>
+                            <h4>Software</h4>
+                        </div>
+                        <h5 style="text-align: right;">@obj.CreatedAt.ToShortDateString()</h5>
+                    </card>
+                }
+            }
+        </div>
+    </section>
 </div>

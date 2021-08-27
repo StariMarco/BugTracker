@@ -17,12 +17,10 @@
                 AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
                 string fullName = user.FullName;
 
-                <li class="nav_item">
-                    <a id="manage" class="nav_link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hi @fullName!</a>
-                </li>
+                <li class="nav_item">Hi @fullName!</li>
                 <li class="nav_item">
                     <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                        <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                        <button id="logout" type="submit" class="nav-button">Logout</button>
                     </form>
                 </li>
             }
@@ -37,7 +35,7 @@
             }
 
             <div class="nav_item">
-                <a class="nav_link avatar-small" asp-area="" asp-controller="" asp-action="">M</a>
+                <a class="nav_link avatar-small" id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">M</a>
             </div>
         </ul>
     </div>
