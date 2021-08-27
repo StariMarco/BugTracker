@@ -11,9 +11,14 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         [Required]
+        [DisplayName("Title*")]
         public string Title { get; set; }
 
         public string Description { get; set; }
+
+        [Required]
+        [DisplayName("Project type*")]
+        public string Type { get; set; }
 
         [Required]
         public string CreatorId { get; set; }
@@ -27,11 +32,6 @@ namespace BugTracker.Models
         [ForeignKey("ProjectManagerId")]
         public virtual AppUser ProjectManager { get; set; }
 
-        [Required]
-        public int ProjectTypeId { get; set; }
-
-        [ForeignKey("ProjectTypeId")]
-        public virtual ProjectType ProjectType { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

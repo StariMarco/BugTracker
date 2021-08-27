@@ -18,7 +18,7 @@
     --color-border: #DADDE2;
     --color-primary-text: #162643;
     --color-secondary-text: #394962;
-    --color-gray-text: #7E8898;
+    --color-gray-text: #6b778c;
     --color-label-text: #394962;
     --color-label-bg: #F5F5F6;
     --color-label-text-pressed: #1B55C5;
@@ -87,7 +87,7 @@ h4 {
 }
 
 h5 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 400;
     color: var(--color-gray-text);
 }
@@ -117,7 +117,7 @@ button {
     border-radius: var(--border-radius);
     border: none;
     color: #fff;
-    padding: 11px 8px;
+    padding: 11px 18px;
     margin: 0;
     transition: all var(--animation-duration);
 }
@@ -126,6 +126,22 @@ button {
         background-color: var(--color-primary-hover);
         cursor: pointer;
     }
+
+.btn {
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius);
+    border: none;
+    color: #fff;
+    padding: 11px 8px;
+    margin: 0;
+    transition: all var(--animation-duration);
+}
+
+    .btn:hover {
+        background-color: var(--color-primary-hover);
+        cursor: pointer;
+    }
+
 
 a {
     color: var(--color-primary-hover);
@@ -159,6 +175,16 @@ a {
     .nav-button:hover {
         background-color: var(--color-primary-light);
         color: var(--color-primary);
+    }
+
+.btn-secondary {
+    background-color: #fff;
+    color: var(--color-primary);
+    transition: all 0ms;
+}
+
+    .btn-secondary:hover {
+        background-color: var(--color-primary-light);
     }
 
 /*Class to make the component impossible to select*/
@@ -270,6 +296,15 @@ a {
     margin-bottom: 15px;
 }
 
+.form-group-contained {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+    max-width: 300px;
+    margin-bottom: 12px;
+}
+
 
 .text-input {
     background-color: var(--color-input-background);
@@ -292,6 +327,32 @@ a {
     .text-input:hover {
         background-color: var(--color-divider);
     }
+
+.text-input-small {
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 6px 8px;
+    font-size: 1.4rem;
+    font-weight: 400;
+    transition: all var(--animation-duration-input);
+}
+
+    .text-input-small::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: var(--color-gray-text);
+    }
+
+    .text-input-small::placeholder {
+        color: var(--color-gray-text);
+    }
+
+    .text-input-small:hover {
+        background-color: var(--color-divider);
+    }
+
+textarea:focus, input:focus {
+    outline: none;
+}
 
 .text-error {
     color: var(--color-error);
@@ -357,4 +418,19 @@ a {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 30px 40px;
+}
+
+
+/* Edit Project */
+
+.edit-project-container {
+    background-color: var(--color-background);
+    padding: 40px;
+}
+
+label {
+    margin-bottom: 4px;
+    color: var(--color-gray-text);
+    font-size: 12px;
+    font-weight: 600;
 }

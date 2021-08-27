@@ -25,7 +25,26 @@ namespace BugTracker.Controllers
 
         public IActionResult Index()
         {
+            List<Project> projects = _db.Projects.ToList() ?? new List<Project>();
+
+            return View(projects);
+        }
+
+        public IActionResult Create()
+        {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Create")]
+        public IActionResult CreatePost(Project project)
+        {
+            project.CreatedAt = DateTime.Now;
+            _db.Projects.Add(project);
+            _db.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

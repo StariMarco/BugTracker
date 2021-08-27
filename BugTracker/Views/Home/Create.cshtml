@@ -1,0 +1,58 @@
+﻿@model BugTracker.Models.Project;
+
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+
+<div class="edit-project-container">
+    <h5 style="margin-bottom: 10px;">Projects &nbsp / &nbsp Create</h5>
+    <h1 style="margin-bottom: 25px;">Create a new project</h1>
+
+    <form method="post" asp-action="Create">
+        <div class="form-group-contained">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" class="text-input-small" />
+            <span asp-validation-for="Title" class="text-error"></span>
+        </div>
+        <div class="form-group-contained">
+            <label asp-for="Type"></label>
+            <input asp-for="Type" class="text-input-small" placeholder="eg. Software, Marketing..." />
+            <span asp-validation-for="Type" class="text-error"></span>
+        </div>
+        <div class="form-group-contained" style="max-width: 560px; margin-top: 20px; margin-bottom: 10px;">
+            <label asp-for="Description"></label>
+            <textarea rows="12" asp-for="Description" class="text-input-small" placeholder="Insert a description of the project..."></textarea>
+            <span asp-validation-for="Description" class="text-error"></span>
+        </div>
+        @*<div class="form-group-contained">
+                <label>Project Manager*</label>
+                <input asp-for="ProjectManagerId" class="text-input-small" />
+                <span asp-validation-for="ProjectManagerId" class="text-error"></span>
+            </div>*@
+        <div class="form-group-contained" style="margin-bottom: 40px">
+            @{
+                string creatorId = UserManager.GetUserId(User);
+                AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == creatorId);
+                string fullName = user.FullName;
+                <label>Project Creator</label>
+                <input class="text-input-small" disabled value="@fullName" />
+                <input asp-for="CreatorId" hidden value="@creatorId" />
+                <input asp-for="ProjectManagerId" hidden value="@creatorId" />
+            }
+        </div>
+
+        <div style="display: flex; flex-direction: row;">
+            <button type="submit" style="margin-right: 10px;">Create</button>
+            <button type="submit" class="btn-secondary" asp-action="Index">Cancel</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    @*Change the color of all "*" to red*@
+    <script>$('label').each(function () {
+            $(this).html($(this).html().replace(/(\*)/g, '<span style="color: #E14236;">$1</span>'));
+        });</script>
+}
