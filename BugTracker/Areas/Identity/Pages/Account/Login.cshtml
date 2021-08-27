@@ -4,9 +4,9 @@
 @{ ViewData["Title"] = "Log in"; }
 
 <section class="auth-container">
-    <form id="account" method="post">
-        <card class="auth-card">
-            <h1 style="margin-bottom: 40px;">Login</h1>
+    <card class="auth-card">
+        <form id="account" class="auth-form" method="post">
+            <h1 style="margin-bottom: 30px;">Login</h1>
             <div class="form-group">
                 <input asp-for="Input.Email" class="text-input" placeholder="Email address" />
                 <span asp-validation-for="Input.Email" class="text-error"></span>
@@ -18,13 +18,25 @@
             <div class="form-group">
                 <button type="submit" class="auth-button">Log in</button>
             </div>
-            <hr />
-            <div class="form-group">
-                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" style="text-align: center;">Don’t have an account? Register</a>
-                <a asp-page="" asp-route-returnUrl="" style="text-align: center; margin-top: 12px;">Log in with guest account</a>
-            </div>
-        </card>
-    </form>
+        </form>
+        <h5 style="font-weight: 400; text-align: center; margin-bottom: 15px;">OR</h5>
+        @{ if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+<form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+    <div class="form-group">
+        @foreach (var provider in Model.ExternalLogins)
+        {
+<button type="submit" class="external-login-btn" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+    Continue with @provider.DisplayName
+</button>}
+    </div>
+</form> } }
+        <hr />
+        <div class="form-group">
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" style="text-align: center;">Don’t have an account? Register</a>
+            <a asp-page="" asp-route-returnUrl="" style="text-align: center; margin-top: 12px;">Log in with guest account</a>
+        </div>
+    </card>
 </section>
 
 @section Scripts {

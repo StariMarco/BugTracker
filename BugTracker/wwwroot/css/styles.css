@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;600;700&display=swap');
 
 :root {
     --color-primary: #1B55C5;
@@ -47,12 +47,8 @@ html {
     font-size: 62.5%;
 }
 
-.main {
-    margin-top: var(--navbar-height);
-}
-
 body {
-    font-family: "Roboto", 'Helvetica Neue', sans-serif;
+    font-family: "Roboto", "Helvetica Neue", Helvetica, sans-serif;
     font-size: 1.6rem;
     background-color: var(--color-background);
     color: var(--color-primary-text);
@@ -111,6 +107,10 @@ hr {
     width: 100%;
 }
 
+.main {
+    margin-top: var(--navbar-height);
+}
+
 /* Buttons - Links */
 button {
     background-color: var(--color-primary);
@@ -133,6 +133,21 @@ a {
     font-weight: 400;
     text-decoration: none;
 }
+
+.external-login-btn {
+    background-color: #fff;
+    color: #42526E;
+    box-shadow: var(--card-shadow);
+    font-weight: 500;
+}
+
+    .external-login-btn:hover {
+        background-color: #f4f4f4;
+    }
+
+    .external-login-btn:first-child {
+        margin-bottom: 15px;
+    }
 
 /*Class to make the component impossible to select*/
 .noselect {
@@ -220,6 +235,9 @@ a {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     width: 400px;
+}
+
+.auth-form {
     display: flex;
     flex-direction: column;
     justify-content: stretch;

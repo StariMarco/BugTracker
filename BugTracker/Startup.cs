@@ -38,6 +38,22 @@ namespace BugTracker
                 .AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddAuthentication().AddFacebook(options =>
+            {
+                IConfigurationSection facebookAuthSection = Configuration.GetSection("Authentication:Facebook");
+
+                options.AppId = facebookAuthSection["AppId"];
+                options.AppSecret = facebookAuthSection["AppSecret"];
+            });
+
+            services.AddAuthentication().AddGoogle(options =>
+            {
+                IConfigurationSection googleAuthSection = Configuration.GetSection("Authentication:Google");
+
+                options.ClientId = googleAuthSection["ClientId"];
+                options.ClientSecret = googleAuthSection["ClientSecret"];
+            });
+
             services.AddControllersWithViews();
         }
 

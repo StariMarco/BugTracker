@@ -3,9 +3,9 @@
 @{ ViewData["Title"] = "Register"; }
 
 <section class="auth-container">
-    <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-        <card class="auth-card">
-            <h1 style="margin-bottom: 40px;">Register</h1>
+    <card class="auth-card">
+        <form asp-route-returnUrl="@Model.ReturnUrl" class="auth-form" method="post">
+            <h1 style="margin-bottom: 30px;">Register</h1>
             <div class="form-group">
                 <input asp-for="Input.FullName" class="text-input" placeholder="Full name" />
                 <span asp-validation-for="Input.FullName" class="text-error"></span>
@@ -25,13 +25,25 @@
             <div class="form-group">
                 <button type="submit" class="auth-button">Register</button>
             </div>
-            <hr />
-            <div class="form-group">
-                <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" style="text-align: center;">Already have an account? Log in</a>
-                <a asp-page="" asp-route-returnUrl="" style="text-align: center; margin-top: 12px;">Log in with guest account</a>
-            </div>
-        </card>
-    </form>
+        </form>
+        <h5 style="font-weight: 400; text-align: center; margin-bottom: 15px;">OR</h5>
+        @{ if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+<form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+    <div class="form-group">
+        @foreach (var provider in Model.ExternalLogins)
+        {
+<button type="submit" class="external-login-btn" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+    Continue with @provider.DisplayName
+</button>}
+    </div>
+</form> } }
+        <hr />
+        <div class="form-group">
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" style="text-align: center;">Already have an account? Log in</a>
+            <a asp-page="" asp-route-returnUrl="" style="text-align: center; margin-top: 12px;">Log in with guest account</a>
+        </div>
+    </card>
 </section>
 
 
