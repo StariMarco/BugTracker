@@ -28,6 +28,12 @@ namespace BugTracker.Models
         public virtual AppUser ProjectManager { get; set; }
 
         [Required]
+        public int ProjectTypeId { get; set; }
+
+        [ForeignKey("ProjectTypeId")]
+        public virtual ProjectType ProjectType { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
     }
 }
