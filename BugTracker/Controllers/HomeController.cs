@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using BugTracker.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BugTracker.Controllers
 {
@@ -27,11 +28,20 @@ namespace BugTracker.Controllers
         {
             List<Project> projects = _db.Projects.ToList() ?? new List<Project>();
 
+
             return View(projects);
         }
 
         public IActionResult Create()
         {
+            IEnumerable<SelectListItem> users = _db.AppUsers.Select((AppUser i) => new SelectListItem
+            {
+                Text = i.FullName + " - " + i.Email,
+                Value = i.Id.ToString()
+            });
+
+            ViewBag.UserList = users;
+
             return View();
         }
 

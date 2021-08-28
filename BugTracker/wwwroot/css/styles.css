@@ -28,6 +28,7 @@
     --color-error: #E14236;
     --border-radius: 5px;
     --navbar-height: 56px;
+    --sidebar-width: 240px;
     --animation-duration: 200ms;
     --animation-duration-input: 300ms;
     --content-max-width: 900px;
@@ -261,6 +262,20 @@ a {
     color: #fff;
 }
 
+.avatar-input {
+    background-color: var(--color-purple);
+    border-radius: 180px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row;
+    font-size: 9px;
+    color: #fff;
+    margin-right: 8px;
+}
+
 /* Auth Pages */
 
 .auth-container {
@@ -301,11 +316,15 @@ a {
     flex-direction: column;
     align-items: stretch;
     justify-content: start;
-    max-width: 300px;
+    max-width: 350px;
     margin-bottom: 12px;
 }
 
+.auth-container hr {
+    margin: 20px 0;
+}
 
+/* Inputs */
 .text-input {
     background-color: var(--color-input-background);
     border: 2px solid var(--color-border);
@@ -350,7 +369,8 @@ a {
         background-color: var(--color-divider);
     }
 
-textarea:focus, input:focus {
+
+textarea:focus, input:focus, .avatar-dropdown:focus {
     outline: none;
 }
 
@@ -360,8 +380,15 @@ textarea:focus, input:focus {
     margin-top: 4px;
 }
 
-.auth-container hr {
-    margin: 20px 0;
+.fake-input {
+    background-color: var(--color-input-background);
+    border-radius: var(--border-radius);
+    color: var(--color-gray-text);
+    align-items: center;
+    display: flex;
+    justify-content: start;
+    padding: 6px 8px;
+    font-size: 14px;
 }
 
 /* Cards */
@@ -433,4 +460,33 @@ label {
     color: var(--color-gray-text);
     font-size: 12px;
     font-weight: 600;
+}
+
+/* Dropdown */
+
+.avatar-dropdown {
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 6px 8px;
+    font-size: 1.4rem;
+    transition: all var(--animation-duration-input);
+}
+
+    .avatar-dropdown:hover {
+        background-color: var(--color-divider);
+    }
+
+/* Sidenav */
+
+.sidenav {
+    height: 100%;
+    width: var(--sidebar-width);
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: var(--color-background);
+    overflow-x: hidden;
+    padding-top: var(--navbar-height);
 }
