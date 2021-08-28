@@ -1,0 +1,57 @@
+﻿@model BugTracker.Models.Project;
+
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<div class="project-main">
+    <partial name="_SideNav" />
+    <div class="project-body">
+        <h1 style="margin-bottom: 25px;">Edit Project</h1>
+
+        <form method="post" asp-action="Settings">
+            <input type="datetime" asp-for="CreatedAt" hidden value="@Model.CreatedAt" />
+            <input asp-for="CreatorId" hidden value="@Model.CreatorId" />
+
+            <div class="form-group-contained">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" class="text-input-small" />
+                <span asp-validation-for="Title" class="text-error"></span>
+            </div>
+            <div class="form-group-contained">
+                <label asp-for="Type"></label>
+                <input asp-for="Type" class="text-input-small" placeholder="eg. Software, Marketing..." />
+                <span asp-validation-for="Type" class="text-error"></span>
+            </div>
+            <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 10px;">
+                <label asp-for="Description"></label>
+                <textarea rows="12" asp-for="Description" class="text-input-small" placeholder="Insert a description of the project..."></textarea>
+                <span asp-validation-for="Description" class="text-error"></span>
+            </div>
+            <div class="form-group-contained">
+                <label>Project Manager*</label>
+                <select class="avatar-dropdown" asp-for="ProjectManagerId" asp-items="@ViewBag.UserList"></select>
+                <span asp-validation-for="ProjectManagerId" class="text-error"></span>
+            </div>
+            <div class="form-group-contained" style="margin-bottom: 40px">
+                <label>Project Creator</label>
+                <div class="fake-input">
+                    @Model.Creator.FullName - @Model.Creator.Email
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: row;">
+                <button type="submit" style="margin-right: 10px;">Update</button>
+                <button type="submit" class="btn-secondary" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Id">Back</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    @*Change the color of all "*" to red*@
+    <script>$('label').each(function () {
+            $(this).html($(this).html().replace(/(\*)/g, '<span style="color: #E14236;">$1</span>'));
+        });</script>
+}

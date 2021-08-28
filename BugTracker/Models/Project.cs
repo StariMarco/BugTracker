@@ -35,5 +35,18 @@ namespace BugTracker.Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        public override string ToString()
+        {
+            string result = "Id: " + Id;
+            result += "\nTitle: " + Title;
+            result += "\nDescription: " + Description;
+            result += "\nType: " + Type;
+            result += "\nCreatorId: " + CreatorId;
+            result += "\nProjectManagerId: " + ProjectManagerId;
+            result += "\nCreatedAt: " + CreatedAt;
+
+            return result;
+        }
     }
 }

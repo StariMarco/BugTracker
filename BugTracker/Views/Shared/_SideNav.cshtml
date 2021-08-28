@@ -18,13 +18,13 @@
         </section>
         <hr />
         <div class="sidenav-button-section" style="margin-top: 10px;">
-            <a class="btn-sidenav" asp-controller="" asp-action="">
+            <a class="btn-sidenav" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Id">
                 <i class="fas fa-pager"></i>Tickets
             </a>
             <a class="btn-sidenav" asp-controller="" asp-action="">
                 <i class="fas fa-user-friends"></i>Manage Users
             </a>
-            <a class="btn-sidenav" asp-controller="" asp-action="">
+            <a class="btn-sidenav" asp-controller="Project" asp-action="Settings" asp-route-id="@Model.Id">
                 <i class="fas fa-cog"></i>Project Settings
             </a>
         </div>
