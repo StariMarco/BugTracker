@@ -33,12 +33,14 @@
     <None Remove="Microsoft.AspNetCore.Authentication.Google" />
     <None Remove="Data\Repository\" />
     <None Remove="Data\Repository\IRepository\" />
+    <None Remove="Views\Project\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="Data\Repository\" />
     <Folder Include="Data\Repository\IRepository\" />
+    <Folder Include="Views\Project\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

@@ -14,13 +14,15 @@
             @{
                 foreach (var obj in Model)
                 {
-                    <card class="card project-card">
-                        <div class="project-info">
-                            <h2>@obj.Title</h2>
-                            <h4>@obj.Type</h4>
-                        </div>
-                        <h5 style="text-align: right;">@obj.CreatedAt.ToShortDateString()</h5>
-                    </card>
+                    <a id="@obj.Id" style="color: #162643" asp-controller="Project" asp-action="Index" asp-route-id="@obj.Id">
+                        <card class="card project-card">
+                            <div class="project-info">
+                                <h2>@obj.Title</h2>
+                                <h4>@obj.Type</h4>
+                            </div>
+                            <h5 style="text-align: right;">@obj.CreatedAt.ToShortDateString()</h5>
+                        </card>
+                    </a>
                 }
             }
         </div>
