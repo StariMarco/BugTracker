@@ -11,13 +11,12 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         [Required]
-        [DisplayName("Title*")]
         public string Title { get; set; }
 
         public string Description { get; set; }
 
         [Required]
-        [DisplayName("Project type*")]
+        [DisplayName("Project type")]
         public string Type { get; set; }
 
         [Required]

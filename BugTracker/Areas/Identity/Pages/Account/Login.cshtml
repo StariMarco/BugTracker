@@ -6,7 +6,13 @@
 <section class="auth-container">
     <card class="auth-card">
         <form id="account" class="auth-form" method="post">
-            <h1 style="margin-bottom: 30px;">Login</h1>
+            @{ string marginBottom = "30px";
+                if (!ModelState.IsValid) marginBottom = "20px";
+
+    <h1 style="margin-bottom: @marginBottom;">Login</h1> }
+            @if (!ModelState.IsValid)
+            {
+<span class="text-error" style="align-self: start; margin-bottom: 5px;">Wrong email or password</span>}
             <div class="form-group">
                 <input asp-for="Input.Email" class="text-input" placeholder="Email address" />
                 <span asp-validation-for="Input.Email" class="text-error"></span>
