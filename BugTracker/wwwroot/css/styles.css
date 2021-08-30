@@ -189,6 +189,29 @@ a {
         background-color: var(--color-primary-light);
     }
 
+.btn-filter {
+    padding: 7px 18px;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+    .btn-filter:hover {
+        color: #fff;
+        background-color: var(--color-primary);
+    }
+
+.btn-table-edit {
+    color: var(--color-primary);
+    background-color: rgba(0, 0, 0, 0) !important;
+    border-radius: var(--border-radius);
+    padding: 6px;
+}
+
+    .btn-table-edit:hover {
+        background-color: var(--color-primary) !important;
+        color: #fff;
+    }
+
 /*Class to make the component impossible to select*/
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -384,7 +407,7 @@ a {
     }
 
 
-textarea:focus, input:focus, .avatar-dropdown:focus {
+textarea:focus, input:focus, .avatar-dropdown:focus, .user-search-dropdown:focus {
     outline: none;
 }
 
@@ -491,8 +514,51 @@ label {
         background-color: var(--color-divider);
     }
 
-/* Sidenav */
+.user-search-dropdown {
+    background-color: var(--color-label-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 8px 35px 8px 8px;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--color-label-text);
+    transition: all var(--animation-duration-input);
+    -webkit-appearance: none; /* for webkit (safari, chrome) compatibility */
+    -moz-appearance: none; /* for firefox compatibility */
+    appearance: none;
+}
 
+.custom-select {
+    position: relative;
+}
+
+.custom-arrow {
+    position: absolute;
+    top: 0;
+    right: 2px;
+    display: block;
+    height: 100%;
+    width: 25px;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-label-text);
+}
+
+#resizing_select {
+    width: 100px;
+}
+
+#rolefilter {
+    width: 110px;
+}
+
+#width_tmp_select {
+    display: none;
+}
+
+/* Sidenav */
 .sidenav {
     height: 100%;
     width: var(--sidebar-width);
@@ -584,3 +650,48 @@ label {
     justify-content: center;
     align-items: center;
 }
+
+/* User Filters */
+
+.user-filters-container {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.user-search {
+    width: 340px;
+    border-width: 1px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    margin-right: 12px;
+}
+
+    .user-search i {
+        color: var(--color-gray-text);
+    }
+
+.invisible-input {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    margin-right: 5px;
+}
+
+/* Syncfusion table */
+#tblUserProject a {
+    background-color: var(--color-primary);
+}
+
+#tblUserProject button {
+    border-radius: var(--border-radius)
+}
+
+#tblUserProject .e-primary {
+    color: var(--color-primary);
+}
+
+    #tblUserProject .e-primary:hover {
+        background-color: var(--color-primary-light);
+    }

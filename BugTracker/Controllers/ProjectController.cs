@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BugTracker.Data;
 using BugTracker.Models;
+using BugTracker.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,56 @@ namespace BugTracker.Controllers
             _db.SaveChanges();
 
             return RedirectToAction(nameof(Index), new { id = project.Id });
+        }
+
+        public IActionResult Users(int id, string userfilter = null, int? rolefilter = null)
+        {
+            Project project = _db.Projects.Include(u => u.Creator).FirstOrDefault(u => u.Id == id);
+            IEnumerable<UserProject> userProjects = _db.UsersProjects.Include(u => u.User).Include(r => r.ProjectRole).Where(p => p.ProjectId == id);
+            IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+
+            if (!string.IsNullOrEmpty(userfilter))
+            {
+                // Filter by name and/or email
+                userProjects = userProjects.Where(u => u.User.FullName.ToLower().Contains(userfilter.ToLower())
+                || u.User.Email.ToLower().Contains(userfilter.ToLower()));
+            }
+
+            if (rolefilter != null && rolefilter > 0)
+                // Filter by role
+                userProjects = userProjects.Where(u => u.ProjectRole.Id == rolefilter);
+
+            ProjectUsersVM projectUsersVM = new ProjectUsersVM()
+            {
+                Project = project,
+                UserProjects = userProjects,
+                ProjectRoles = roles
+            };
+
+            return View(projectUsersVM);
+        }
+
+        public IActionResult Edit(string userId, int projectId)
+        {
+            UserProject userProject = _db.UsersProjects.Include(u => u.User).Include(u => u.ProjectRole).FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId);
+            IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+
+            EditUserProjectVM editUserProjectVM = new EditUserProjectVM
+            {
+                Project = _db.Projects.Find(projectId),
+                UserProject = userProject,
+                ProjectRoles = roles
+            };
+
+            return View(editUserProjectVM);
         }
     }
 }

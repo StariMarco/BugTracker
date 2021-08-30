@@ -1,0 +1,16 @@
+﻿@model BugTracker.Models.ViewModels.EditUserProjectVM;
+
+<div class="project-main">
+    <partial name="_SideNav" model="@Model.Project" />
+
+    <div class="project-body">
+        <a asp-controller="Project" asp-action="Users" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 20px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to users</h5></a>
+        <h1>Edit User Role</h1>
+        <form method="post">
+            <p>@Model.UserProject.User.FullName</p>
+            <p>@Model.UserProject.Project.Title</p>
+            <p>@Model.UserProject.ProjectRole.Name</p>
+        </form>
+    </div>
+
+</div>
