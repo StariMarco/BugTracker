@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification;
 using BugTracker.Data;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Builder;
@@ -53,6 +54,8 @@ namespace BugTracker
                 options.ClientId = googleAuthSection["ClientId"];
                 options.ClientSecret = googleAuthSection["ClientSecret"];
             });
+
+            services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
 
             services.AddControllersWithViews();
         }

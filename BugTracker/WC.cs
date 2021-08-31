@@ -15,5 +15,8 @@ namespace BugTracker
         public const int ReporterId = 2;
         public const int DeveloperId = 3;
         public const int ReviewerId = 4;
+
+        public const string MessageTypeError = "error";
+        public const string MessageTypeSuccess = "success";
     }
 }

@@ -4,15 +4,19 @@
     <partial name="_SideNav" model="@Model.Project" />
 
     <div class="project-body">
+        <div id="modalPlaceholder"></div>
+
         <h1>Users</h1>
 
-        @*Filters*@
         <section style="display: flex; align-content: center; justify-content: space-between; margin: 30px 0 50px">
+
+            @*Filters*@
             <form method="get" class="user-filters-container">
                 <div class="text-input-small user-search">
                     @Html.Editor("userfilter", new { HtmlAttributes = new { @class = "invisible-input", @placeholder = "Search for names, or email addresses" } })
                     <i class="fas fa-search"></i>
                 </div>
+
                 <div class="custom-select">
                     @Html.DropDownList("rolefilter", Model.ProjectRoles, "Roles", new { @class = "resizing_select user-search-dropdown" })
                     @*<select id="rolefilter" class="resizing_select user-search-dropdown" asp-items="@Model.ProjectRoles">
@@ -23,9 +27,16 @@
                     </select>
                     <span class="custom-arrow"><i class="fas fa-chevron-down"></i></span>
                 </div>
+
                 <button type="submit" class="btn-filter" style="margin-left: 12px;">Filter</button>
             </form>
-            <button style="padding: 7px 18px;">Add user</button>
+
+            @*Modal button*@
+            <button style="padding: 7px 18px;" asp-route-id="@Model.Project.Id"
+                    data-toggle="ajax-modal" data-target="#selectUser" data-url="@Url.Action("Select")?id=@Model.Project.Id">
+                Add user
+            </button>
+
         </section>
 
         @*User Table*@

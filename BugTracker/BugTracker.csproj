@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.9" />
     <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="19.2.0.57" />
+    <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +38,8 @@
     <None Remove="Views\Project\" />
     <None Remove="Models\ViewModels\" />
     <None Remove="Syncfusion.EJ2.AspNet.Core" />
+    <None Remove="AspNetCoreHero.ToastNotification" />
+    <None Remove="Core\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -45,6 +48,7 @@
     <Folder Include="Data\Repository\IRepository\" />
     <Folder Include="Views\Project\" />
     <Folder Include="Models\ViewModels\" />
+    <Folder Include="Core\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

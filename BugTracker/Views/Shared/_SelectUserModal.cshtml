@@ -1,0 +1,56 @@
+﻿@model BugTracker.Models.ViewModels.SelectUserVM;
+
+<div id="selectUser" class="modal">
+    <div class="modal-content">
+        <h1>Select User</h1>
+        <form method="post" asp-action="AddUser" style="display: flex; flex-direction: column; align-items: start;">
+            <input asp-for="UserProject.ProjectId" hidden value="@Model.UserProject.ProjectId" />
+            <input id="userIdInput" asp-for="UserProject.UserId" hidden />
+
+            @*User Table*@
+            <label>Select the user</label>
+            <section class="grid-container">
+                <ejs-grid id="tblSelectUser" dataSource="@Model.Users" allowFiltering="true" allowSorting="true" allowPaging="true" allowSelection="true">
+                    <e-grid-filtersettings type="Menu"></e-grid-filtersettings>
+                    <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
+                    <e-grid-selectionsettings type="Single" mode="Row"></e-grid-selectionsettings>
+                    <e-grid-columns>
+                        <e-grid-column field="Id" headerText="Id" isPrimaryKey="true" visible="false"></e-grid-column>
+                        <e-grid-column field="FullName" headerText="Name"></e-grid-column>
+                        <e-grid-column field="Email" headerText="Email"></e-grid-column>
+                        @*<e-grid-column field="UserId" headerText="" width="100" textAlign="Center" allowSorting="false" allowFiltering="false"
+                            template="<a href='#'>Select</a>"></e-grid-column>*@
+                    </e-grid-columns>
+                </ejs-grid>
+            </section>
+
+            @*User + Role*@
+            <section style="margin-bottom: 60px; display: flex; justify-content: start; align-items: start;">
+                <div class="form-group-contained" style="margin-right: 30px;">
+                    <label>Selected user</label>
+                    <div id="selectedUserName" class="fake-input"
+                         style="min-width: 200px; padding: 7px 8px; color: #162643; border: 1px solid #DADDE2; ">
+                        -
+                    </div>
+                </div>
+                <div class="form-group-contained">
+                    <label>Select the role</label>
+                    <select class="avatar-dropdown" asp-for="UserProject.ProjectRoleId" asp-items="@Model.ProjectRoles"></select>
+                    <span asp-validation-for="UserProject.ProjectRoleId" class="text-error"></span>
+                </div>
+            </section>
+
+            @*Buttons*@
+            <footer class="modal-buttons-container">
+                <button type="button" class="btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" data-save="modal">Confirm</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+<ejs-scripts></ejs-scripts>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
