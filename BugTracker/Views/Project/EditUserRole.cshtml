@@ -1,0 +1,40 @@
+﻿@model BugTracker.Models.ViewModels.EditUserProjectVM;
+
+<div class="project-main">
+    <partial name="_SideNav" model="@Model.Project" />
+
+    <div class="project-body">
+        <a asp-controller="Project" asp-action="Users" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 20px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to users</h5></a>
+        <h1>Edit User Role</h1>
+        <form method="post" asp-action="EditUserRole" style="width: 350px;">
+            <input asp-for="UserProject.UserId" hidden />
+            <input asp-for="UserProject.ProjectId" hidden />
+            <div class="form-group-contained" style="margin-bottom: 40px; margin-top: 30px;">
+                <label>Name</label>
+                <div class="fake-input">
+                    @Model.UserProject.User.FullName
+                </div>
+            </div>
+            <div class="form-group-contained" style="margin-bottom: 40px">
+                <label>Email</label>
+                <div class="fake-input">
+                    @Model.UserProject.User.Email
+                </div>
+            </div>
+            <div class="form-group-contained">
+                <label>Role for this project (@Model.Project.Title)</label>
+                <select class="avatar-dropdown" asp-for="UserProject.ProjectRoleId" asp-items="@Model.ProjectRoles"></select>
+                <span asp-validation-for="UserProject.ProjectRoleId" class="text-error"></span>
+            </div>
+            <div style="display: flex; margin-top: 25px;">
+                <button type="submit" style="margin-right: 12px">Save</button>
+                <button type="submit" class="btn-remove"
+                        onclick="return confirm('Are you sure you want to remove @Model.UserProject.User.FullName from the project @Model.UserProject.Project.Title?')"
+                        asp-controller="Project" asp-action="RemoveUserFromProject">
+                    Remove from project
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>

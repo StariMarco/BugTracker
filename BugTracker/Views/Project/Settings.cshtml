@@ -41,10 +41,24 @@
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: row;">
+            <div style="display: flex; flex-direction: row; margin-bottom: 40px;">
                 <button type="submit" style="margin-right: 10px;">Update</button>
                 <button type="submit" class="btn-secondary" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Id">Back</button>
             </div>
+
+            <h2>Danger Zone</h2>
+            <section class="danger-zone-container">
+                <div class="danger-zone-item">
+                    <p>
+                        <b>Delete this project (@Model.Title)</b><br />
+                        Once you delete a project, there is no going back. Please be certain.
+                    </p>
+                    <button type="submit" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id"
+                            onclick="return confirm('Are you sure you want to remove @Model.Title?')">
+                        Delete project
+                    </button>
+                </div>
+            </section>
         </form>
     </div>
 </div>

@@ -88,7 +88,7 @@ namespace BugTracker.Controllers
             return View(projectUsersVM);
         }
 
-        public IActionResult Edit(string userId, int projectId)
+        public IActionResult EditUserRole(string userId, int projectId)
         {
             UserProject userProject = _db.UsersProjects.Include(u => u.User).Include(u => u.ProjectRole).FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId);
             IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
@@ -105,6 +105,41 @@ namespace BugTracker.Controllers
             };
 
             return View(editUserProjectVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("EditUserRole")]
+        public IActionResult EditUserRolePost(UserProject userProject)
+        {
+            _db.UsersProjects.Update(userProject);
+            _db.SaveChanges();
+
+            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveUserFromProject(UserProject userProject)
+        {
+            _db.UsersProjects.Remove(userProject);
+            _db.SaveChanges();
+
+            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Project project)
+        {
+            // Remove all the UserProjects from the db
+            _db.UsersProjects.RemoveRange(_db.UsersProjects.Where(up => up.ProjectId == project.Id));
+
+            // Remove the project from the db
+            _db.Projects.Remove(project);
+            _db.SaveChanges();
+
+            return RedirectToAction(nameof(Index), "Home");
         }
     }
 }

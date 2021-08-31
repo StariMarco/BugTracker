@@ -5,6 +5,7 @@
     --color-primary-hover: #0364FF;
     --color-primary-light: #DAE8FE;
     --color-red: #E14236;
+    --color-red-light: #FDEFEE;
     --color-purple: #6555C0;
     --color-azure: #43A4E2;
     --color-green: #E14236;
@@ -210,6 +211,16 @@ a {
     .btn-table-edit:hover {
         background-color: var(--color-primary) !important;
         color: #fff;
+    }
+
+.btn-remove {
+    background-color: var(--color-red-light);
+    color: var(--color-red);
+}
+
+    .btn-remove:hover {
+        color: #fff;
+        background-color: var(--color-red);
     }
 
 /*Class to make the component impossible to select*/
@@ -694,4 +705,35 @@ label {
 
     #tblUserProject .e-primary:hover {
         background-color: var(--color-primary-light);
+    }
+
+/* Danger zone */
+
+.danger-zone-container {
+    border: 1px solid var(--color-red);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-top: 8px;
+    max-width: 650px;
+}
+
+.danger-zone-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.danger-zone-container p {
+    margin: 0;
+    line-height: 21px;
+}
+
+.danger-zone-container button {
+    color: var(--color-red);
+    background-color: var(--color-red-light);
+}
+
+    .danger-zone-container button:hover {
+        color: #fff;
+        background-color: var(--color-red);
     }

@@ -7,8 +7,13 @@ namespace BugTracker
         public const string UserRole = "User";
 
         public const string ProjectManagerRole = "ProjectManager";
-        public const string SubmitterRole = "Submitter";
+        public const string ReporterRole = "Reporter";
         public const string DeveloperRole = "Developer";
         public const string ReviewerRole = "Reviewer";
+
+        public const int ProjectManagerId = 1;
+        public const int ReporterId = 2;
+        public const int DeveloperId = 3;
+        public const int ReviewerId = 4;
     }
 }

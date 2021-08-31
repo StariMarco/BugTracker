@@ -50,8 +50,32 @@ namespace BugTracker.Controllers
         [ActionName("Create")]
         public IActionResult CreatePost(Project project)
         {
+            // Add project to db
             project.CreatedAt = DateTime.Now;
             _db.Projects.Add(project);
+            _db.SaveChanges();
+
+            // Add the project manager
+            UserProject projectManager = new UserProject()
+            {
+                UserId = project.ProjectManagerId,
+                ProjectId = project.Id,
+                ProjectRoleId = WC.ProjectManagerId
+            };
+            _db.UsersProjects.Add(projectManager);
+
+            // Add the creator as a project manager
+            if (project.ProjectManagerId != project.CreatorId)
+            {
+                UserProject creator = new UserProject()
+                {
+                    UserId = project.CreatorId,
+                    ProjectId = project.Id,
+                    ProjectRoleId = WC.ProjectManagerId
+                };
+                _db.UsersProjects.Add(creator);
+            }
+
             _db.SaveChanges();
 
             return RedirectToAction(nameof(Index));
