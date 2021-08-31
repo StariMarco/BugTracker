@@ -135,7 +135,7 @@ button {
     border-radius: var(--border-radius);
     border: none;
     color: #fff;
-    padding: 11px 8px;
+    padding: 11px 18px;
     margin: 0;
     transition: all var(--animation-duration);
 }
@@ -184,6 +184,11 @@ a {
     background-color: #fff;
     color: var(--color-primary);
     transition: all 0ms;
+    border-radius: var(--border-radius);
+    border: none;
+    padding: 11px 18px;
+    margin: 0;
+    transition: all var(--animation-duration);
 }
 
     .btn-secondary:hover {

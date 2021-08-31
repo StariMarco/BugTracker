@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Core;
 using BugTracker.Data;
+using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -18,28 +19,35 @@ namespace BugTracker.Controllers
 {
     public class ProjectController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IProjectRoleRepository _projetRoleRepo;
+        private readonly IProjectRepository _projectRepo;
+        private readonly IAppUserRepository _appUserRepo;
+        private readonly IUserProjectRepository _userProjectRepo;
         private readonly INotyfService _notyf;
 
-        public ProjectController(ApplicationDbContext db, INotyfService notyf)
+        public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, INotyfService notyf)
         {
-            _db = db;
+            _projetRoleRepo = projetRoleRepo;
+            _projectRepo = projectRepo;
+            _appUserRepo = appUserRepo;
+            _userProjectRepo = userProjectRepo;
             _notyf = notyf;
         }
 
         // GET: /<controller>/
         public IActionResult Index(int id)
         {
-            Project project = _db.Projects.Find(id);
+            Project project = _projectRepo.Find(id);
 
             return View(project);
         }
 
         public IActionResult Settings(int id)
         {
-            Project project = _db.Projects.Include(u => u.Creator).FirstOrDefault(u => u.Id == id);
+            Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
 
-            IEnumerable<SelectListItem> users = _db.AppUsers.Select((AppUser i) => new SelectListItem
+            //TODO: Change this to a modal user selector
+            IEnumerable<SelectListItem> users = _appUserRepo.GetAll().Select((AppUser i) => new SelectListItem
             {
                 Text = i.FullName + " - " + i.Email,
                 Selected = i.Id == project.ProjectManagerId,
@@ -56,21 +64,17 @@ namespace BugTracker.Controllers
         [ActionName("Settings")]
         public IActionResult SettingsPost(Project project)
         {
-            _db.Projects.Update(project);
-            _db.SaveChanges();
+            _projectRepo.Update(project);
+            _projectRepo.Save();
 
             return RedirectToAction(nameof(Index), new { id = project.Id });
         }
 
         public IActionResult Users(int id, string userfilter = null, int? rolefilter = null, string messageType = null, string message = null)
         {
-            Project project = _db.Projects.Include(u => u.Creator).FirstOrDefault(u => u.Id == id);
-            IEnumerable<UserProject> userProjects = _db.UsersProjects.Include(u => u.User).Include(r => r.ProjectRole).Where(p => p.ProjectId == id);
-            IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
+            IEnumerable<UserProject> userProjects = _userProjectRepo.GetAll(p => p.ProjectId == id, includeProperties: "User,ProjectRole");
+            IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
             // Filter the userProjects
             userProjects = HelperFunctions.FilterUserProjects(userProjects, userfilter, rolefilter);
@@ -91,16 +95,12 @@ namespace BugTracker.Controllers
 
         public IActionResult EditUserRole(string userId, int projectId)
         {
-            UserProject userProject = _db.UsersProjects.Include(u => u.User).Include(u => u.ProjectRole).FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId);
-            IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            UserProject userProject = _userProjectRepo.FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId, includeProperties: "User,ProjectRole");
+            IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
             EditUserProjectVM editUserProjectVM = new EditUserProjectVM
             {
-                Project = _db.Projects.Find(projectId),
+                Project = _projectRepo.Find(projectId),
                 UserProject = userProject,
                 ProjectRoles = roles
             };
@@ -113,8 +113,8 @@ namespace BugTracker.Controllers
         [ActionName("EditUserRole")]
         public IActionResult EditUserRolePost(UserProject userProject)
         {
-            _db.UsersProjects.Update(userProject);
-            _db.SaveChanges();
+            _userProjectRepo.Update(userProject);
+            _userProjectRepo.Save();
 
             string message = "User updated successfully";
             return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
@@ -124,8 +124,8 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveUserFromProject(UserProject userProject)
         {
-            _db.UsersProjects.Remove(userProject);
-            _db.SaveChanges();
+            _userProjectRepo.Remove(userProject);
+            _userProjectRepo.Save();
 
             string message = "User deleted from the project";
             return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
@@ -137,11 +137,11 @@ namespace BugTracker.Controllers
         public IActionResult DeleteProject(Project project)
         {
             // Remove all the UserProjects from the db
-            _db.UsersProjects.RemoveRange(_db.UsersProjects.Where(up => up.ProjectId == project.Id));
+            _userProjectRepo.RemoveRange(_userProjectRepo.GetAll(up => up.ProjectId == project.Id));
 
             // Remove the project from the db
-            _db.Projects.Remove(project);
-            _db.SaveChanges();
+            _projectRepo.Remove(project);
+            _projectRepo.Save();
 
             return RedirectToAction(nameof(Index), "Home");
         }
@@ -150,13 +150,8 @@ namespace BugTracker.Controllers
         [ActionName("Select")]
         public IActionResult SelectUser(int id)
         {
-            IEnumerable<AppUser> users = _db.AppUsers;
-            //TODO: extract in function
-            IEnumerable<SelectListItem> roles = _db.ProjectRoles.Select((ProjectRole i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            IEnumerable<AppUser> users = _appUserRepo.GetAll();
+            IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
             SelectUserVM selectUserVM = new SelectUserVM()
             {
@@ -179,8 +174,8 @@ namespace BugTracker.Controllers
             try
             {
                 // Success
-                _db.UsersProjects.Add(userProject);
-                _db.SaveChanges();
+                _userProjectRepo.Add(userProject);
+                _userProjectRepo.Save();
 
                 message = "User added successfully to the project";
                 return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message });

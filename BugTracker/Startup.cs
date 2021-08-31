@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification;
 using BugTracker.Data;
+using BugTracker.Data.Repository;
+using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -56,6 +58,12 @@ namespace BugTracker
             });
 
             services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
+
+            // Repositories
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IAppUserRepository, AppUserRepository>();
+            services.AddScoped<IUserProjectRepository, UserProjectRepository>();
+            services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
 
             services.AddControllersWithViews();
         }

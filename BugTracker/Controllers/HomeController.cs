@@ -9,6 +9,7 @@ using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using BugTracker.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using BugTracker.Data.Repository.IRepository;
 
 namespace BugTracker.Controllers
 {
@@ -16,25 +17,29 @@ namespace BugTracker.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _db;
+        private readonly IProjectRepository _projectRepo;
+        private readonly IAppUserRepository _appUserRepo;
+        private readonly IUserProjectRepository _userProjectRepo;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo)
         {
             _logger = logger;
-            _db = db;
+            _projectRepo = projectRepo;
+            _appUserRepo = appUserRepo;
+            _userProjectRepo = userProjectRepo;
         }
 
         public IActionResult Index()
         {
-            List<Project> projects = _db.Projects.ToList() ?? new List<Project>();
-
+            List<Project> projects = _projectRepo.GetAll().ToList() ?? new List<Project>();
 
             return View(projects);
         }
 
         public IActionResult Create()
         {
-            IEnumerable<SelectListItem> users = _db.AppUsers.Select((AppUser i) => new SelectListItem
+            //TODO: Change this to a modal user selector
+            IEnumerable<SelectListItem> users = _appUserRepo.GetAll().Select((AppUser i) => new SelectListItem
             {
                 Text = i.FullName + " - " + i.Email,
                 Value = i.Id.ToString()
@@ -52,8 +57,8 @@ namespace BugTracker.Controllers
         {
             // Add project to db
             project.CreatedAt = DateTime.Now;
-            _db.Projects.Add(project);
-            _db.SaveChanges();
+            _projectRepo.Add(project);
+            _projectRepo.Save();
 
             // Add the project manager
             UserProject projectManager = new UserProject()
@@ -62,7 +67,7 @@ namespace BugTracker.Controllers
                 ProjectId = project.Id,
                 ProjectRoleId = WC.ProjectManagerId
             };
-            _db.UsersProjects.Add(projectManager);
+            _userProjectRepo.Add(projectManager);
 
             // Add the creator as a project manager
             if (project.ProjectManagerId != project.CreatorId)
@@ -73,10 +78,10 @@ namespace BugTracker.Controllers
                     ProjectId = project.Id,
                     ProjectRoleId = WC.ProjectManagerId
                 };
-                _db.UsersProjects.Add(creator);
+                _userProjectRepo.Add(creator);
             }
 
-            _db.SaveChanges();
+            _projectRepo.Save();
 
             return RedirectToAction(nameof(Index));
         }
