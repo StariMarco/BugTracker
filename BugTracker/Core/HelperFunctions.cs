@@ -42,6 +42,11 @@ namespace BugTracker.Core
                     notyf.Success(message);
                     //_notyf.Custom(message, 10, "#32AA75", "fas fa-check-circle");
                 }
+                else if (messageType == WC.MessageTypeGeneralError)
+                {
+                    // Show general error toast
+                    notyf.Error("Something went wrong");
+                }
             }
         }
     }

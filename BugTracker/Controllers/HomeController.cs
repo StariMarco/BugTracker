@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 using BugTracker.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using BugTracker.Data.Repository.IRepository;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using BugTracker.Core;
 
 namespace BugTracker.Controllers
 {
@@ -20,13 +22,15 @@ namespace BugTracker.Controllers
         private readonly IProjectRepository _projectRepo;
         private readonly IAppUserRepository _appUserRepo;
         private readonly IUserProjectRepository _userProjectRepo;
+        private readonly INotyfService _notyf;
 
-        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo)
+        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, INotyfService notyf)
         {
             _logger = logger;
             _projectRepo = projectRepo;
             _appUserRepo = appUserRepo;
             _userProjectRepo = userProjectRepo;
+            _notyf = notyf;
         }
 
         public IActionResult Index()
@@ -55,33 +59,42 @@ namespace BugTracker.Controllers
         [ActionName("Create")]
         public IActionResult CreatePost(Project project)
         {
-            // Add project to db
-            project.CreatedAt = DateTime.Now;
-            _projectRepo.Add(project);
-            _projectRepo.Save();
-
-            // Add the project manager
-            UserProject projectManager = new UserProject()
+            try
             {
-                UserId = project.ProjectManagerId,
-                ProjectId = project.Id,
-                ProjectRoleId = WC.ProjectManagerId
-            };
-            _userProjectRepo.Add(projectManager);
+                // Add project to db
+                project.CreatedAt = DateTime.Now;
+                _projectRepo.Add(project);
+                _projectRepo.Save();
 
-            // Add the creator as a project manager
-            if (project.ProjectManagerId != project.CreatorId)
-            {
-                UserProject creator = new UserProject()
+                // Add the project manager
+                UserProject projectManager = new UserProject()
                 {
-                    UserId = project.CreatorId,
+                    UserId = project.ProjectManagerId,
                     ProjectId = project.Id,
                     ProjectRoleId = WC.ProjectManagerId
                 };
-                _userProjectRepo.Add(creator);
-            }
+                _userProjectRepo.Add(projectManager);
 
-            _projectRepo.Save();
+                // Add the creator as a project manager
+                if (project.ProjectManagerId != project.CreatorId)
+                {
+                    UserProject creator = new UserProject()
+                    {
+                        UserId = project.CreatorId,
+                        ProjectId = project.Id,
+                        ProjectRoleId = WC.ProjectManagerId
+                    };
+                    _userProjectRepo.Add(creator);
+                }
+                _projectRepo.Save();
+
+                string message = "The project was created successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
 
             return RedirectToAction(nameof(Index));
         }

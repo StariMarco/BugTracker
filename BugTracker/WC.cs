@@ -18,5 +18,6 @@ namespace BugTracker
 
         public const string MessageTypeError = "error";
         public const string MessageTypeSuccess = "success";
+        public const string MessageTypeGeneralError = "general-error";
     }
 }

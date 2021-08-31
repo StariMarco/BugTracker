@@ -64,8 +64,18 @@ namespace BugTracker.Controllers
         [ActionName("Settings")]
         public IActionResult SettingsPost(Project project)
         {
-            _projectRepo.Update(project);
-            _projectRepo.Save();
+            try
+            {
+                _projectRepo.Update(project);
+                _projectRepo.Save();
+
+                string message = "The project was updated successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
 
             return RedirectToAction(nameof(Index), new { id = project.Id });
         }
@@ -113,22 +123,37 @@ namespace BugTracker.Controllers
         [ActionName("EditUserRole")]
         public IActionResult EditUserRolePost(UserProject userProject)
         {
-            _userProjectRepo.Update(userProject);
-            _userProjectRepo.Save();
+            try
+            {
+                _userProjectRepo.Update(userProject);
+                _userProjectRepo.Save();
 
-            string message = "User updated successfully";
-            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+                string message = "User updated successfully";
+                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+            }
+            catch (Exception)
+            {
+                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeGeneralError });
+            }
+
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveUserFromProject(UserProject userProject)
         {
-            _userProjectRepo.Remove(userProject);
-            _userProjectRepo.Save();
+            try
+            {
+                _userProjectRepo.Remove(userProject);
+                _userProjectRepo.Save();
 
-            string message = "User deleted from the project";
-            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+                string message = "User deleted from the project";
+                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+            }
+            catch (Exception)
+            {
+                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeGeneralError });
+            }
         }
 
         [HttpPost]
@@ -136,12 +161,22 @@ namespace BugTracker.Controllers
         [ActionName("Delete")]
         public IActionResult DeleteProject(Project project)
         {
-            // Remove all the UserProjects from the db
-            _userProjectRepo.RemoveRange(_userProjectRepo.GetAll(up => up.ProjectId == project.Id));
+            try
+            {
+                // Remove all the UserProjects from the db
+                _userProjectRepo.RemoveRange(_userProjectRepo.GetAll(up => up.ProjectId == project.Id));
 
-            // Remove the project from the db
-            _projectRepo.Remove(project);
-            _projectRepo.Save();
+                // Remove the project from the db
+                _projectRepo.Remove(project);
+                _projectRepo.Save();
+
+                string message = "The project was deleted successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
 
             return RedirectToAction(nameof(Index), "Home");
         }
