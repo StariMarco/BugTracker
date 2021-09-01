@@ -22,27 +22,20 @@
             <input asp-for="Type" class="text-input-small" placeholder="eg. Software, Marketing..." />
             <span asp-validation-for="Type" class="text-error"></span>
         </div>
-        <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 10px;">
+        <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 20px;">
             <label asp-for="Description"></label>
             <textarea rows="12" asp-for="Description" class="text-input-small" placeholder="Insert a description of the project..."></textarea>
             <span asp-validation-for="Description" class="text-error"></span>
         </div>
-        <div class="form-group-contained">
-            <label>Project Manager*</label>
-            <select class="avatar-dropdown" asp-for="ProjectManagerId" asp-items="@ViewBag.UserList">
-                <option selected>Select</option>
-            </select>
-            <span asp-validation-for="ProjectManagerId" class="text-error"></span>
-        </div>
-        <div class="form-group-contained" style="margin-bottom: 40px">
+        <div class="form-group-contained" style="margin-bottom: 40px;">
             @{
                 string creatorId = UserManager.GetUserId(User);
                 AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == creatorId);
-                string fullName = user.FullName;
-                string email = user.Email;
+
                 <label>Project Creator</label>
                 <div class="fake-input">
-                    @fullName - @email
+                    <a class="avatar-input" style="margin-right: 8px;">@user.FullName.FirstOrDefault()</a>
+                    @user.FullName - @user.Email
                 </div>
                 <input asp-for="CreatorId" hidden value="@creatorId" />
                 <input asp-for="ProjectManagerId" hidden value="@creatorId" />

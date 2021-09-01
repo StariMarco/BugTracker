@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BugTracker.Models.ViewModels
 {
-    public class SelectUserVM
+    public class SelectUserProjectVM
     {
         public IEnumerable<AppUser> Users { get; set; }
         public UserProject UserProject { get; set; }

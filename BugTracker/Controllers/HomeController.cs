@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using BugTracker.Data.Repository.IRepository;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Core;
+using BugTracker.Models.ViewModels;
 
 namespace BugTracker.Controllers
 {
@@ -42,15 +43,6 @@ namespace BugTracker.Controllers
 
         public IActionResult Create()
         {
-            //TODO: Change this to a modal user selector
-            IEnumerable<SelectListItem> users = _appUserRepo.GetAll().Select((AppUser i) => new SelectListItem
-            {
-                Text = i.FullName + " - " + i.Email,
-                Value = i.Id.ToString()
-            });
-
-            ViewBag.UserList = users;
-
             return View();
         }
 

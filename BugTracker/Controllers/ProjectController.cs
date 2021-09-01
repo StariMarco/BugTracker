@@ -188,14 +188,14 @@ namespace BugTracker.Controllers
             IEnumerable<AppUser> users = _appUserRepo.GetAll();
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
-            SelectUserVM selectUserVM = new SelectUserVM()
+            SelectUserProjectVM selectUserVM = new SelectUserProjectVM()
             {
                 Users = users,
                 UserProject = new UserProject() { ProjectId = id },
                 ProjectRoles = roles
             };
 
-            return PartialView("_SelectUserModal", selectUserVM);
+            return PartialView("_SelectUserProjectModal", selectUserVM);
 
         }
 
