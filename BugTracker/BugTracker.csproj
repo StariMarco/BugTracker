@@ -40,6 +40,7 @@
     <None Remove="Syncfusion.EJ2.AspNet.Core" />
     <None Remove="AspNetCoreHero.ToastNotification" />
     <None Remove="Core\" />
+    <None Remove="Views\Ticket\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -49,6 +50,7 @@
     <Folder Include="Views\Project\" />
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Core\" />
+    <Folder Include="Views\Ticket\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

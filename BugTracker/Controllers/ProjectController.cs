@@ -34,14 +34,6 @@ namespace BugTracker.Controllers
             _notyf = notyf;
         }
 
-        // GET: /<controller>/
-        public IActionResult Index(int id)
-        {
-            Project project = _projectRepo.Find(id);
-
-            return View(project);
-        }
-
         public IActionResult Settings(int id)
         {
             Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
@@ -77,7 +69,7 @@ namespace BugTracker.Controllers
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Index), new { id = project.Id });
+            return RedirectToAction(nameof(Index), nameof(Ticket), new { id = project.Id });
         }
 
         public IActionResult Users(int id, string userfilter = null, int? rolefilter = null, string messageType = null, string message = null)

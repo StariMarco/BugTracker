@@ -14,7 +14,7 @@
             @{
                 foreach (var obj in Model)
                 {
-                    <a id="@obj.Id" style="color: #162643" asp-controller="Project" asp-action="Index" asp-route-id="@obj.Id">
+                    <a id="@obj.Id" style="color: #162643" asp-controller="Ticket" asp-action="Index" asp-route-id="@obj.Id">
                         <card class="card project-card">
                             <div class="project-info">
                                 <h2>@obj.Title</h2>

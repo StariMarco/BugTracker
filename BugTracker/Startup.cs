@@ -64,6 +64,7 @@ namespace BugTracker
             services.AddScoped<IAppUserRepository, AppUserRepository>();
             services.AddScoped<IUserProjectRepository, UserProjectRepository>();
             services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
+            services.AddScoped<ITicketRepository, TicketRepository>();
 
             services.AddControllersWithViews();
         }
