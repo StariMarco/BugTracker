@@ -63,5 +63,12 @@ namespace BugTracker.Models
 
         [ForeignKey("PriorityId")]
         public virtual TicketPriority Priority { get; set; }
+
+        // TypeId
+        [Required]
+        public int TypeId { get; set; }
+
+        [ForeignKey("TypeId")]
+        public virtual TicketType Type { get; set; }
     }
 }
