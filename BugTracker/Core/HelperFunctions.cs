@@ -26,6 +26,31 @@ namespace BugTracker.Core
             return items;
         }
 
+        public static IEnumerable<Ticket> FilterTickets(IEnumerable<Ticket> items, string userfilter = null, int? typefilter = null, int? statusfilter = null)
+        {
+            if (!string.IsNullOrEmpty(userfilter))
+            {
+                // Filter by name and/or title
+                items = items.Where(t => t.Title.ToLower().Contains(userfilter.ToLower())
+                || t.Reporter.FullName.ToLower().Contains(userfilter.ToLower())
+                || t.Developer.FullName.ToLower().Contains(userfilter.ToLower()));
+            }
+
+            if (typefilter != null && typefilter > 0)
+            {
+                // Filter by role
+                items = items.Where(u => u.TypeId == typefilter);
+            }
+
+            if (statusfilter != null && statusfilter > 0)
+            {
+                // Filter by role
+                items = items.Where(u => u.StatusId == statusfilter);
+            }
+
+            return items;
+        }
+
         public static void ManageToastMessages(INotyfService notyf, string messageType = null, string message = null)
         {
             if (messageType != null)

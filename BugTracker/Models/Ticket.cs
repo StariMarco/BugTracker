@@ -18,7 +18,7 @@ namespace BugTracker.Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
-        public DateTime ClosedAt { get; set; }
+        public DateTime? ClosedAt { get; set; }
 
         //
         // Foreign Keys

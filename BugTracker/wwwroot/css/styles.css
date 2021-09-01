@@ -12,6 +12,7 @@
     --color-bright-green: #32AA75;
     --color-light-green: #E0FCEE;
     --color-orange: #FFA329;
+    --color-light-orange: #FFE5C3;
     --color-background: #FFFFFF;
     --color-secondary-background: #F9FBFC;
     --color-input-background: #FAFBFC;
@@ -226,6 +227,17 @@ a {
     .btn-remove:hover {
         color: #fff;
         background-color: var(--color-red);
+    }
+
+.btn-clear {
+    padding: 8px 18px;
+    color: var(--color-primary-text);
+    background-color: #fff;
+    border-radius: var(--border-radius);
+}
+
+    .btn-clear:hover {
+        background-color: var(--color-label-bg);
     }
 
 /*Class to make the component impossible to select*/
@@ -562,15 +574,15 @@ label {
     color: var(--color-label-text);
 }
 
-#resizing_select {
-    width: 100px;
-}
-
-#rolefilter {
+#resizing_select, #rolefilter {
     width: 110px;
 }
 
-#width_tmp_select {
+#typefilter, #statusfilter {
+    width: 90px;
+}
+
+#width_tmp_select, #width_status_select, #width_type_select {
     display: none;
 }
 
@@ -742,6 +754,23 @@ label {
     background-color: var(--color-light-green);
 }
 
+/* tblProjectTickets */
+#tblProjectTickets .e-currentitem {
+    background-color: var(--color-primary);
+}
+
+#tblProjectTickets button {
+    border-radius: var(--border-radius)
+}
+
+#tblProjectTickets .e-primary {
+    color: var(--color-primary);
+}
+
+    #tblProjectTickets .e-primary:hover {
+        background-color: var(--color-primary-light);
+    }
+
 /* Danger zone */
 .danger-zone-container {
     border: 1px solid var(--color-red);
@@ -806,4 +835,39 @@ label {
     position: absolute;
     right: 40px;
     bottom: 40px;
+}
+
+/* Status Tag */
+
+#statusTemplate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-tag {
+    background-color: var(--color-border);
+    border-radius: var(--border-radius);
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-secondary-text);
+}
+
+
+.in-progress-tag {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.in-review-tag {
+    background-color: var(--color-light-orange);
+    color: var(--color-orange);
+}
+
+.done-tag {
+    background-color: var(--color-light-green);
+    color: var(--color-green);
 }

@@ -51,7 +51,6 @@ $(function () {
         const currentRow = $(this).closest('tr');
         const userId = currentRow.find('td:eq(0)').text();
         const userName = currentRow.find('td:eq(1)').text();
-        console.log(userName);
 
         placeholderElement.find('#userIdInput').val(userId);
         placeholderElement.find('#selectedUserName').text(userName);

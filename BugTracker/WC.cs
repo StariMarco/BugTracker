@@ -16,6 +16,15 @@ namespace BugTracker
         public const int DeveloperId = 3;
         public const int ReviewerId = 4;
 
+        public const int StatusToDo = 1;
+        public const int StatusInProgress = 2;
+        public const int StatusInReview = 3;
+        public const int StatusDone = 4;
+
+        public const int TypeBug = 1;
+        public const int TypeImprovement = 2;
+        public const int TypeNewFeature = 3;
+
         public const string MessageTypeError = "error";
         public const string MessageTypeSuccess = "success";
         public const string MessageTypeGeneralError = "general-error";

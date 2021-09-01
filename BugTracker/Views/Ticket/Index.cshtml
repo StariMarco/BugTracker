@@ -4,5 +4,125 @@
     <partial name="_SideNav" model="@Model.Project" />
     <div class="project-body">
         <h1>Tickets</h1>
+
+        <section style="display: flex; align-content: center; justify-content: space-between; margin: 30px 0 50px">
+
+            @*Filters*@
+            <form id="ticketFilterForm" method="get" class="user-filters-container">
+                <div class="text-input-small user-search" style="max-width: 250px;">
+                    @Html.Editor("userfilter", new { HtmlAttributes = new { @class = "invisible-input", @placeholder = "Search for titles or user names" } })
+                    <i class="fas fa-search"></i>
+                </div>
+
+                <div class="custom-select">
+                    @Html.DropDownList("statusfilter", Model.Statuses, "Status", new { @class = "resizing_select user-search-dropdown" })
+                    <select id="width_status_select">
+                        <option id="width_status_option"></option>
+                    </select>
+                    <span class="custom-arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+
+                <div class="custom-select" style="margin-left: 12px;">
+                    @Html.DropDownList("typefilter", Model.Types, "Type", new { @class = "resizing_select user-search-dropdown" })
+                    <select id="width_type_select">
+                        <option id="width_type_option"></option>
+                    </select>
+                    <span class="custom-arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+
+                <button type="submit" class="btn-filter" style="margin-left: 12px;">Search</button>
+                <a type="button" id="btnClear" class="btn-clear" title="Clear" asp-controller="Ticket" asp-action="Index" style="margin-left: 12px;"><i class="fas fa-times-circle"></i></a>
+            </form>
+
+            @*Modal button*@
+            <button type="button">Create</button>
+
+        </section>
+
+        @*Tickets Table*@
+        <section>
+            <ejs-grid id="tblProjectTickets" dataSource="@Model.Tickets" allowFiltering="true" allowSorting="true" allowPaging="true" actionComplete="updateStatus">
+                <e-grid-filtersettings type="Menu"></e-grid-filtersettings>
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="Id" headerText="Id" isPrimaryKey="true" visible="false"></e-grid-column>
+                    <e-grid-column field="Type.Name" headerText="Type" width="12%" allowFiltering="false"></e-grid-column>
+                    <e-grid-column field="Title" headerText="Title" width="30%"></e-grid-column>
+                    <e-grid-column field="Reporter.FullName" headerText="Reporter" width="20%"></e-grid-column>
+                    <e-grid-column field="Developer.FullName" headerText="Developer" width="20%"></e-grid-column>
+                    <e-grid-column field="Status.Name" headerText="Status" width="15%" allowFiltering="false"
+                                   template="<div id='statusCol' class='status-tag'><input hidden value='${Status.Id}' />${Status.Name}</div>"></e-grid-column>
+                    <e-grid-column field="Priority.Name" headerText="Priority" width="10%" allowFiltering="false"></e-grid-column>
+                    @*<e-grid-column field="CreatedAt" headerText="Created" customFormat="@(new { type="date", format="d MMM yyyy" })"></e-grid-column>*@
+                </e-grid-columns>
+            </ejs-grid>
+        </section>
     </div>
 </div>
+
+@section Scripts{
+    <script>$(document).ready(function () {
+            $('#statusfilter').change(function () {
+                $("#width_status_option").html($('#statusfilter option:selected').text());
+                $(this).width($("#width_status_select").width() - 25);
+            });
+
+            $('#typefilter').change(function () {
+                $("#width_type_option").html($('#typefilter option:selected').text());
+                $(this).width($("#width_type_select").width() - 25);
+            });
+
+            /* All this to show the status in different tags */
+            $("#tblProjectTickets").ready(updateStatus);
+            //$("#tblProjectTickets .e-columnheader").on('click', function () {
+            //    setTimeout(updateStatus, 30);
+            //});
+        });
+
+        function updateStatus() {
+            $("#tblProjectTickets .status-tag").each(function () {
+                var statusId = $(this).children("input:first").val();
+
+                switch (statusId) {
+                    case "1":
+                        $(this).attr('class', 'todo-tag status-tag');
+                        break;
+                    case "2":
+                        $(this).attr('class', 'in-progress-tag status-tag');
+                        break;
+                    case "3":
+                        $(this).attr('class', 'in-review-tag status-tag');
+                        break;
+                    case "4":
+                        $(this).attr('class', 'done-tag status-tag');
+                        break;
+                    default:
+                        break;
+                }
+
+            });
+        }</script>
+
+}
+
+@*<script type="text/x-jsrender" id="statusTemplate">
+        {{if Status.Id == 1}}
+        <div id="statusTag" class="status-tag">
+            <span class="status-txt">${Status.Name}</span>
+        </div>
+        {{else Status.Id == 2}}
+        <div id="statusTag" class="in-progress-tag status-tag">
+            <span class="status-txt">${Status.Name}</span>
+        </div>
+        {{else Status.Id == 3}}
+        <div id="statusTag" class="in-review-tag status-tag">
+            <span class="status-txt">${Status.Name}</span>
+        </div>
+        {{else Status.Id == 4}}
+        <div id="statusTag" class="done-tag status-tag">
+            <span class="status-txt">${Status.Name}</span>
+        </div>
+        {{else}}
+        ${Status.Name}
+        {{/if}}
+    </script>*@
