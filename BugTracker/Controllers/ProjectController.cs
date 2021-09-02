@@ -72,7 +72,7 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index), nameof(Ticket), new { id = project.Id });
         }
 
-        public IActionResult Users(int id, string userfilter = null, int? rolefilter = null, string messageType = null, string message = null)
+        public IActionResult Users(int id, string userfilter = null, int? rolefilter = null)
         {
             Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
             IEnumerable<UserProject> userProjects = _userProjectRepo.GetAll(p => p.ProjectId == id, includeProperties: "User,ProjectRole");
@@ -80,9 +80,6 @@ namespace BugTracker.Controllers
 
             // Filter the userProjects
             userProjects = HelperFunctions.FilterUserProjects(userProjects, userfilter, rolefilter);
-
-            // Show a confirmation toast if needed
-            HelperFunctions.ManageToastMessages(_notyf, messageType, message);
 
             // Prepare the VM for the view
             ProjectUsersVM projectUsersVM = new ProjectUsersVM()
@@ -121,13 +118,14 @@ namespace BugTracker.Controllers
                 _userProjectRepo.Save();
 
                 string message = "User updated successfully";
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
             catch (Exception)
             {
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeGeneralError });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
+            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
         }
 
         [HttpPost]
@@ -140,12 +138,14 @@ namespace BugTracker.Controllers
                 _userProjectRepo.Save();
 
                 string message = "User deleted from the project";
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message = message });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
             catch (Exception)
             {
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeGeneralError });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
+
+            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
         }
 
         [HttpPost]
@@ -205,21 +205,22 @@ namespace BugTracker.Controllers
                 _userProjectRepo.Save();
 
                 message = "User added successfully to the project";
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeSuccess, message });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
             catch (DbUpdateException)
             {
                 // User alredy present
                 message = "The selected user is already included in this project";
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeError, message });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
             }
             catch (Exception)
             {
                 // Error
                 message = "Something went wrong";
-                return RedirectToAction(nameof(Users), new { id = userProject.ProjectId, messageType = WC.MessageTypeError, message });
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
+            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
         }
     }
 }

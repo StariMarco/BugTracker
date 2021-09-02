@@ -3,6 +3,8 @@
 <div class="project-main">
     <partial name="_SideNav" model="@Model.Project" />
     <div class="project-body">
+        <div id="modalPlaceholder"></div>
+
         <div style="max-width: 25%;">
             <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
         </div>
@@ -66,7 +68,11 @@
                         </div>
                         <span>Status</span>
                         <div style="display: flex; justify-content: start">
-                            <div class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value">@Model.Ticket.Status.Name</div>
+                            <button class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value"
+                                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?id=@Model.Ticket.Id">
+                                @Model.Ticket.Status.Name
+                            </button>
+                            @*<div class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value">@Model.Ticket.Status.Name</div>*@
                         </div>
                         <span>Priority</span><div class="detail-value">@Model.Ticket.Priority.Name</div>
                         <span>Type</span> <div class="detail-value">@Model.Ticket.Type.Name</div>
@@ -105,6 +111,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
+    <script src="@Url.Content("~/js/change-ticket-status-modal.js")"></script>
 
     @*Change the color of all "*" to red*@
     <script>$('label').each(function () {

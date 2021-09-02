@@ -10,6 +10,7 @@ using BugTracker.Models;
 using BugTracker.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -123,6 +124,50 @@ namespace BugTracker.Controllers
             };
 
             return View(editTicketVM);
+        }
+
+        [HttpGet]
+        public IActionResult ChangeStatus(int id)
+        {
+            IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
+            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == id, includeProperties: "Status");
+
+            ChangeTicketStatusVM changeTicketStatusVM = new ChangeTicketStatusVM()
+            {
+                Statuses = statuses,
+                Status = ticket.Status,
+                Ticket = ticket
+            };
+
+            return PartialView("_ChageTicketStatusModal", changeTicketStatusVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("ChangeStatus")]
+        public IActionResult ChangeStatusPost(TicketStatus status, int ticketId)
+        {
+            Ticket ticket = _ticketRepo.Find(ticketId);
+
+            ticket.StatusId = status.Id;
+
+            try
+            {
+                _ticketRepo.Update(ticket);
+                _ticketRepo.Save();
+
+                string message = "Ticket status updated successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                // Error
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+
+            }
+
+
+            return RedirectToAction(nameof(Details), new { projectId = ticket.ProjectId, ticketId = ticketId });
         }
     }
 }

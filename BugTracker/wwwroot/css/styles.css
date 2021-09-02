@@ -829,6 +829,13 @@ label {
     position: relative;
 }
 
+.status-modal-content {
+    background-color: var(--color-background);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    padding: 40px 80px;
+}
+
 .modal label {
     margin-bottom: 8px;
     margin-top: 30px;
@@ -840,8 +847,15 @@ label {
     bottom: 40px;
 }
 
-/* Status Tag */
+.status-modal-buttons {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
 
+/* Status Tag */
 #statusTemplate {
     display: flex;
     align-items: center;
@@ -864,10 +878,17 @@ label {
     cursor: pointer;
 }
 
+#ticket-detail-body .todo-tag:hover {
+    background-color: #CBCCCC;
+}
 
 .in-progress-tag {
     background-color: var(--color-primary-light);
     color: var(--color-primary);
+}
+
+#ticket-detail-body .in-progress-tag:hover {
+    background-color: #C5DBFA;
 }
 
 .in-review-tag {
@@ -875,10 +896,19 @@ label {
     color: var(--color-orange);
 }
 
+#ticket-detail-body .in-review-tag:hover {
+    background-color: #FCD7A6;
+}
+
 .done-tag {
     background-color: var(--color-light-green);
     color: var(--color-green);
 }
+
+#ticket-detail-body .done-tag:hover {
+    background-color: #C8FCE2;
+}
+
 
 /* Ticket Details */
 
