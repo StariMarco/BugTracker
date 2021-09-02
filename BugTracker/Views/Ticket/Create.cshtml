@@ -1,0 +1,64 @@
+﻿@model BugTracker.Models.ViewModels.CreateTicketVM;
+
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<div class="project-main">
+    <partial name="_SideNav" model="@Model.Project" />
+    <div class="project-body">
+        <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+        <h1 style="margin-bottom: 25px;">Create new ticket</h1>
+
+        <form method="post" asp-action="Create">
+            @{
+                string reporterId = UserManager.GetUserId(User);
+
+                <input asp-for="Ticket.ReporterId" hidden value="@reporterId" />
+                <input asp-for="Ticket.ProjectId" hidden value="@Model.Project.Id" />
+            }
+
+            @*Inputs*@
+            <div class="form-group-contained">
+                <label asp-for="Ticket.Title">Title*</label>
+                <input asp-for="Ticket.Title" class="text-input-small" />
+                <span asp-validation-for="Ticket.Title" class="text-error"></span>
+            </div>
+
+            <div class="form-group-contained">
+                <label>Ticket Type*</label>
+                <select class="avatar-dropdown" asp-for="Ticket.TypeId" asp-items="@Model.Types"></select>
+                <span asp-validation-for="Ticket.TypeId" class="text-error"></span>
+            </div>
+
+            <div class="form-group-contained">
+                <label>Priority*</label>
+                <select class="avatar-dropdown" asp-for="Ticket.PriorityId" asp-items="@Model.Priorities"></select>
+                <span asp-validation-for="Ticket.PriorityId" class="text-error"></span>
+            </div>
+
+            <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 20px;">
+                <label asp-for="Ticket.Description"></label>
+                <textarea rows="12" asp-for="Ticket.Description" class="text-input-small" placeholder="Insert a description of the ticket..."></textarea>
+                <span asp-validation-for="Ticket.Description" class="text-error"></span>
+            </div>
+
+            @*Buttons*@
+            <div style="display: flex; flex-direction: row;">
+                <button type="submit" style="margin-right: 10px;">Create</button>
+                <a type="button" class="btn-secondary" asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    @*Change the color of all "*" to red*@
+    <script>$('label').each(function () {
+            $(this).html($(this).html().replace(/(\*)/g, '<span style="color: #E14236;">$1</span>'));
+        });</script>
+}

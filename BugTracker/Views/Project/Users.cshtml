@@ -25,7 +25,7 @@
                     <span class="custom-arrow"><i class="fas fa-chevron-down"></i></span>
                 </div>
 
-                <button type="submit" class="btn-filter" style="margin-left: 12px;">Filter</button>
+                <button type="submit" class="btn-filter" style="margin-left: 12px;">Search</button>
             </form>
 
             @*Modal button*@
@@ -56,6 +56,8 @@
 </div>
 
 @section Scripts{
+    <script src="@Url.Content("~/js/select-userproject-modal.js")"></script>
+
     <script>$(document).ready(function () {
             $('#rolefilter').change(function () {
                 $("#width_tmp_option").html($('#rolefilter option:selected').text());

@@ -1,0 +1,113 @@
+﻿@model BugTracker.Models.ViewModels.TicketDetailsVM;
+
+<div class="project-main">
+    <partial name="_SideNav" model="@Model.Project" />
+    <div class="project-body">
+        <div style="max-width: 25%;">
+            <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+        </div>
+
+        <div id="ticket-details-container">
+
+            <section id="col-left">
+                @*Title*@
+                <header class="ticket-header">
+                    <h1 style="font-size: 22px;">@Model.Ticket.Title</h1>
+                    <a class="edit-ticket-button">Edit Ticket</a>
+                </header>
+
+                @*Description*@
+                <div class="ticket-section">
+                    <h6 style="margin-bottom: 8px;">Description</h6>
+                    @Model.Ticket.Description
+                    @*<button type="button" class="text-input-button">@Model.Ticket.Description</button>*@
+                </div>
+
+                @*Attachments*@
+                <div class="ticket-section">
+                    <h6>Attachments</h6>
+                </div>
+
+                @*Comments*@
+                <div class="ticket-section">
+                    <h6>Comments</h6>
+                </div>
+            </section>
+
+            <section id="col-right">
+
+                @*Details*@
+                <card class="ticket-info-card">
+                    <header id="detail-header" class="header-title">
+                        <h6>Details</h6>
+                        <i id="detail-icon" class="fas fa-chevron-up"></i>
+                    </header>
+                    <div id="ticket-detail-body" class="">
+                        <span>Reporter</span>
+                        <div class="detail-value">
+                            <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reporter.FullName.FirstOrDefault()</div>
+                            @Model.Ticket.Reporter.FullName
+                        </div>
+                        <span>Developer</span>
+                        <div class="detail-value">
+                            @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
+                            {
+                                <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
+                                @Model.Ticket.Developer?.FullName
+                            }
+                        </div>
+                        <span>Reviewer</span>
+                        <div class="detail-value">
+                            @if (@Model.Ticket.Reviewer != null && !string.IsNullOrEmpty(@Model.Ticket.Reviewer.FullName))
+                            {
+                                <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reviewer?.FullName.FirstOrDefault()</div>
+                                @Model.Ticket.Reviewer?.FullName
+                            }
+                        </div>
+                        <span>Status</span>
+                        <div style="display: flex; justify-content: start">
+                            <div class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value">@Model.Ticket.Status.Name</div>
+                        </div>
+                        <span>Priority</span><div class="detail-value">@Model.Ticket.Priority.Name</div>
+                        <span>Type</span> <div class="detail-value">@Model.Ticket.Type.Name</div>
+                        <span>Created</span> <div class="detail-value">@Model.Ticket.CreatedAt.ToString("d MMMM yyyy")</div>
+                    </div>
+                </card>
+
+                @*Timeline*@
+                <card class="ticket-info-card">
+                    <header id="timeline-header" class="header-title">
+                        <h6>Timeline</h6>
+                        <i id="timeline-icon" class="fas fa-chevron-up"></i>
+                    </header>
+                    <div id="ticket-timeline-body" class="">
+                        <div class="timeline-item">
+                            <div class="avatar" style="margin-right: 15px">M</div>
+                            <div>
+                                <div style="margin-bottom: 12px;">
+                                    <span><b>Marco</b> changed the <b>Priority</b></span> <span class="date">1 hour ago</span>
+                                </div>
+                                <div class="timeline-content">
+                                    High <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i> Medium
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </card>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
+
+    @*Change the color of all "*" to red*@
+    <script>$('label').each(function () {
+            $(this).html($(this).html().replace(/(\*)/g, '<span style="color: #E14236;">$1</span>'));
+        });</script>
+}

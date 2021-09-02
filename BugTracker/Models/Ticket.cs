@@ -70,5 +70,23 @@ namespace BugTracker.Models
 
         [ForeignKey("TypeId")]
         public virtual TicketType Type { get; set; }
+
+        public override string ToString()
+        {
+            string result = "Id: " + Id;
+            result += "\nTitle: " + Title;
+            result += "\nDescription: " + Description;
+            result += "\nCreatedAt: " + CreatedAt.ToLongDateString();
+            result += "\nClosedAt: " + ClosedAt?.ToLongDateString() ?? "null";
+            result += "\nProjectId: " + ProjectId;
+            result += "\nReportedId: " + ReporterId;
+            result += "\nDeveloperId: " + DeveloperId;
+            result += "\nReviewerId: " + ReviewerId;
+            result += "\nStatusId: " + StatusId;
+            result += "\nPriorityId: " + PriorityId;
+            result += "\nTypeId: " + TypeId;
+
+            return result;
+        }
     }
 }
