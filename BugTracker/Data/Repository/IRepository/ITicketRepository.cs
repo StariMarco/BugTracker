@@ -10,5 +10,7 @@ namespace BugTracker.Data.Repository.IRepository
         void Update(Ticket obj);
 
         public IEnumerable<SelectListItem> GetAllStatuses();
+        public IEnumerable<SelectListItem> GetAllTypes();
+        public IEnumerable<SelectListItem> GetAllPriorities();
     }
 }

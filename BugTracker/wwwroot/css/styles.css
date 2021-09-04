@@ -435,9 +435,48 @@ a {
         background-color: var(--color-divider);
     }
 
+.text-input-ticket {
+    background-color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 6px 8px;
+    font-size: 1.4rem;
+    font-weight: 400;
+    width: 100%;
+    transition: all var(--animation-duration-input);
+    -webkit-appearance: none; /* for webkit (safari, chrome) compatibility */
+    -moz-appearance: none; /* for firefox compatibility */
+    appearance: none;
+}
 
-textarea:focus, input:focus, .avatar-dropdown:focus, .user-search-dropdown:focus {
-    outline: none;
+    .text-input-ticket::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: var(--color-gray-text);
+    }
+
+    .text-input-ticket::placeholder {
+        color: var(--color-gray-text);
+    }
+
+    .text-input-ticket:hover {
+        background-color: var(--color-divider);
+    }
+
+    .text-input-ticket:focus {
+        background-color: var(--color-label-bg);
+        outline: none;
+    }
+
+
+textarea {
+    resize: none;
+}
+
+    textarea:focus, input:focus, .avatar-dropdown:focus, .user-search-dropdown:focus {
+        outline: none;
+    }
+
+.auto-resize-textarea::-webkit-scrollbar {
+    width: 0;
 }
 
 .text-error {
@@ -458,7 +497,6 @@ textarea:focus, input:focus, .avatar-dropdown:focus, .user-search-dropdown:focus
 }
 
 /* Cards */
-
 .card {
     background-color: var(--color-background);
     border-radius: var(--border-radius);
@@ -833,7 +871,7 @@ label {
     background-color: var(--color-background);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
-    padding: 40px 80px;
+    padding: 30px 40px;
 }
 
 .modal label {
@@ -874,7 +912,7 @@ label {
 }
 
 .detail-tag {
-    padding: 3px 6px;
+    padding: 4px 6px 3px;
     cursor: pointer;
 }
 
@@ -979,19 +1017,23 @@ label {
         cursor: pointer;
     }
 
-.text-input-button {
-    background-color: #fff;
-    color: var(--color-primary-text);
-    padding: 8px;
-    text-align: start;
-    font-size: 1.4rem;
-    font-weight: 400;
+.save-changes-button {
+    margin-left: 20px;
+    background-color: var(--color-light-green);
+    color: var(--color-green);
+    white-space: nowrap;
+    padding: 11px 18px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    border-radius: var(--border-radius);
 }
 
-    .text-input-button:hover {
-        background-color: var(--color-label-hover);
-        cursor: text;
+    .save-changes-button:hover {
+        background-color: var(--color-bright-green);
+        color: #fff;
+        cursor: pointer;
     }
+
 
 .ticket-info-card {
     display: flex;
@@ -1072,3 +1114,29 @@ label {
     /*visibility: hidden;*/
     display: none;
 }
+
+/* Attachments + Comments */
+
+.ticket-section header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#upload-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+}
+
+    #upload-btn i {
+        color: var(--color-secondary-text);
+    }
+
+    #upload-btn:hover {
+        background-color: var(--color-label-bg);
+        cursor: pointer;
+    }

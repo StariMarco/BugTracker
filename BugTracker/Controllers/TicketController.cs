@@ -35,18 +35,8 @@ namespace BugTracker.Controllers
         {
             Project project = _projectRepo.Find(id);
             IEnumerable<Ticket> tickets = _ticketRepo.GetAll(t => t.ProjectId == project.Id, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type", orderBy: (q) => q.OrderByDescending(t => t.CreatedAt));
-
-            IEnumerable<SelectListItem> statuses = _db.TicketStatus.Select((TicketStatus i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
-
-            IEnumerable<SelectListItem> types = _db.TicketTypes.Select((TicketType i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
+            IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
 
             // Filter the tickets
             tickets = HelperFunctions.FilterTickets(tickets, userfilter, typefilter, statusfilter);
@@ -65,17 +55,8 @@ namespace BugTracker.Controllers
         public IActionResult Create(int id)
         {
             Project project = _projectRepo.Find(id);
-            IEnumerable<SelectListItem> types = _db.TicketTypes.Select((TicketType i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
-
-            IEnumerable<SelectListItem> priorities = _db.TicketPriorities.Select((TicketPriority i) => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
+            IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
 
             CreateTicketVM createTicketVM = new CreateTicketVM
             {
@@ -112,18 +93,60 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
         }
 
+        // TODO: Delete this
         public IActionResult Details(int projectId, int ticketId)
         {
             Project project = _projectRepo.Find(projectId);
             Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type");
 
-            TicketDetailsVM editTicketVM = new TicketDetailsVM
+            TicketDetailsVM ticketDetailsVM = new TicketDetailsVM
             {
                 Project = project,
                 Ticket = ticket
             };
 
+            return View(ticketDetailsVM);
+        }
+
+        public IActionResult Edit(int projectId, int ticketId)
+        {
+            Project project = _projectRepo.Find(projectId);
+            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Reporter,Developer,Reviewer,Priority,Status,Type");
+
+            IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
+            IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
+
+            EditTicketVM editTicketVM = new EditTicketVM
+            {
+                Project = project,
+                Ticket = ticket,
+                Priorities = priorities,
+                Types = types
+            };
+
             return View(editTicketVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Edit")]
+        public IActionResult EditPost(Ticket ticket)
+        {
+            try
+            {
+                _ticketRepo.Update(ticket);
+                _ticketRepo.Save();
+
+                string message = "Ticket updated successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                // Error
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
         }
 
         [HttpGet]
@@ -166,8 +189,38 @@ namespace BugTracker.Controllers
 
             }
 
+            return RedirectToAction(nameof(Edit), new { projectId = ticket.ProjectId, ticketId = ticketId });
+        }
 
-            return RedirectToAction(nameof(Details), new { projectId = ticket.ProjectId, ticketId = ticketId });
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("DeleteTicket")]
+        public IActionResult DeleteTicket(int ticketId, int projectId)
+        {
+            try
+            {
+                Ticket ticket = _ticketRepo.Find(ticketId);
+                _ticketRepo.Remove(ticket);
+                _ticketRepo.Save();
+
+                string message = "Ticket deleted successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                // Error
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Index), new { id = projectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UploadFile(int projectId, TicketAttachment attachment)
+        {
+
+            return RedirectToAction(nameof(Index), new { id = projectId });
         }
     }
 }

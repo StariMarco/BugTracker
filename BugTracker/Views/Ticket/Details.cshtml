@@ -15,7 +15,7 @@
                 @*Title*@
                 <header class="ticket-header">
                     <h1 style="font-size: 22px;">@Model.Ticket.Title</h1>
-                    <a class="edit-ticket-button">Edit Ticket</a>
+                    <a asp-action="Edit" asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" class="edit-ticket-button">Edit Ticket</a>
                 </header>
 
                 @*Description*@
@@ -113,8 +113,4 @@
     <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
     <script src="@Url.Content("~/js/change-ticket-status-modal.js")"></script>
 
-    @*Change the color of all "*" to red*@
-    <script>$('label').each(function () {
-            $(this).html($(this).html().replace(/(\*)/g, '<span style="color: #E14236;">$1</span>'));
-        });</script>
 }

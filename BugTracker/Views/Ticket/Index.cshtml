@@ -48,7 +48,7 @@
                     <e-grid-column field="Id" headerText="Id" isPrimaryKey="true" visible="false"></e-grid-column>
                     <e-grid-column field="Type.Name" headerText="Type" width="12%" allowFiltering="false"></e-grid-column>
                     <e-grid-column field="Title" headerText="Title" width="30%"
-                                   template="<a rel='nofollow' class='grid-link' href='/Ticket/Details?projectId=${ProjectId}&ticketId=${Id}'>${Title}</a>"></e-grid-column>
+                                   template="<a rel='nofollow' class='grid-link' href='/Ticket/Edit?projectId=${ProjectId}&ticketId=${Id}'>${Title}</a>"></e-grid-column>
                     <e-grid-column field="Reporter.FullName" headerText="Reporter" width="20%"></e-grid-column>
                     <e-grid-column field="Developer.FullName" headerText="Developer" width="20%"></e-grid-column>
                     <e-grid-column field="Status.Name" headerText="Status" width="15%" allowFiltering="false"

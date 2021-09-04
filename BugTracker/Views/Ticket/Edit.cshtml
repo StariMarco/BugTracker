@@ -1,0 +1,175 @@
+﻿@model BugTracker.Models.ViewModels.EditTicketVM;
+
+<div class="project-main">
+    <partial name="_SideNav" model="@Model.Project" />
+    <div class="project-body">
+        <div id="modalPlaceholder"></div>
+
+        <div style="max-width: 25%;">
+            <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+        </div>
+
+        <form method="post" asp-action="Edit">
+            <input asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
+            <input asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
+            <div id="ticket-details-container">
+
+                <section id="col-left">
+                    @*Title*@
+                    <header class="ticket-header">
+                        <div style="width: 100%;">
+                            @*TODO: Make this a textarea*@
+                            <input asp-for="Ticket.Title" class="text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title" />
+                            @*<textarea asp-for="Ticket.Title" type="text" id="titleText"
+                                class="auto-resize-textarea text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title"></textarea>*@
+                            <span asp-validation-for="Ticket.Title" class="text-error"></span>
+                        </div>
+                        <button type="submit" class="save-changes-button">Save Changes</button>
+                    </header>
+
+                    @*Description*@
+                    <div class="ticket-section">
+                        <h6 style="margin-bottom: 8px;">Description</h6>
+                        <textarea rows="12" asp-for="Ticket.Description" class="text-input-ticket" placeholder="Write a description for the project..."></textarea>
+                        <span asp-validation-for="Ticket.Description" class="text-error"></span>
+                    </div>
+
+                    @*Attachments*@
+                    <div class="ticket-section">
+                        <header style="margin-bottom: 20px;">
+                            <h6 style="margin: 0;">Attachments</h6>
+                            <label for="upload" id="upload-btn">
+                                <i class="fas fa-plus"></i>
+                            </label>
+                            <input id="upload" name="upload" type="file" hidden asp-controller="Ticket" asp-action="UploadFile" asp-route-projectId="@Model.Project.Id" />
+                        </header>
+                    </div>
+
+                    @*Comments*@
+                    <div class="ticket-section">
+                        <h6>Comments</h6>
+                    </div>
+                </section>
+
+                <section id="col-right">
+
+                    @*Details*@
+                    <card class="ticket-info-card">
+                        <header id="detail-header" class="header-title">
+                            <h6>Details</h6>
+                            <i id="detail-icon" class="fas fa-chevron-up"></i>
+                        </header>
+                        <div id="ticket-detail-body" class="">
+                            <span>Reporter</span>
+                            <div class="detail-value">
+                                <input asp-for="Ticket.ReporterId" hidden value="@Model.Ticket.ReporterId" />
+                                <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reporter.FullName.FirstOrDefault()</div>
+                                @Model.Ticket.Reporter.FullName
+                            </div>
+                            <span>Developer</span>
+                            <div class="detail-value">
+                                @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
+                                {
+                                    <input asp-for="Ticket.DeveloperId" hidden value="@Model.Ticket.DeveloperId" />
+                                    <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
+                                    @Model.Ticket.Developer?.FullName
+                                }
+                            </div>
+                            <span>Reviewer</span>
+                            <div class="detail-value">
+                                <input asp-for="Ticket.ReviewerId" hidden value="@Model.Ticket.ReviewerId" />
+                                @if (@Model.Ticket.Reviewer != null && !string.IsNullOrEmpty(@Model.Ticket.Reviewer.FullName))
+                                {
+                                    <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reviewer?.FullName.FirstOrDefault()</div>
+                                    @Model.Ticket.Reviewer?.FullName
+                                }
+                            </div>
+                            <span>Status</span>
+                            <div style="display: flex; justify-content: start; align-items: center">
+                                <input asp-for="Ticket.StatusId" hidden value="@Model.Ticket.StatusId" />
+                                <button type="button" class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value"
+                                        data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?id=@Model.Ticket.Id">
+                                    @Model.Ticket.Status.Name
+                                    <i class="fas fa-chevron-down" style="margin-left: 6px;"></i>
+                                </button>
+                            </div>
+                            <span>Priority</span>
+                            <div class="detail-value">
+                                <select style="width: 100%" class="text-input-ticket" asp-for="Ticket.PriorityId" asp-items="@Model.Priorities"></select>
+                                <span asp-validation-for="Ticket.PriorityId" class="text-error"></span>
+                            </div>
+                            <span>Type</span>
+                            <div class="detail-value">
+                                <select style="width: 100%" class="text-input-ticket" asp-for="Ticket.TypeId" asp-items="@Model.Types"></select>
+                                <span asp-validation-for="Ticket.TypeId" class="text-error"></span>
+                            </div>
+                            <span>Created</span>
+                            <div class="detail-value">
+                                <input type="datetime" asp-for="Ticket.CreatedAt" hidden value="@Model.Ticket.CreatedAt" />
+                                @Model.Ticket.CreatedAt.ToString("d MMMM yyyy")
+                            </div>
+                        </div>
+                    </card>
+
+                    @*Timeline*@
+                    <card class="ticket-info-card">
+                        <header id="timeline-header" class="header-title">
+                            <h6>Timeline</h6>
+                            <i id="timeline-icon" class="fas fa-chevron-up"></i>
+                        </header>
+                        <div id="ticket-timeline-body" class="">
+                            <div class="timeline-item">
+                                <div class="avatar" style="margin-right: 15px">M</div>
+                                <div>
+                                    <div style="margin-bottom: 12px;">
+                                        <span><b>Marco</b> changed the <b>Priority</b></span> <span class="date">1 hour ago</span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        High <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i> Medium
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </card>
+
+                    <section class="danger-zone-container">
+                        <div class="danger-zone-item">
+                            <p>
+                                <b>Delete this ticket</b><br />
+                                Once you delete a ticket, there is no going back. Please be certain.
+                            </p>
+                            <button type="submit" style="white-space: nowrap;" asp-controller="Ticket" asp-action="DeleteTicket"
+                                    asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id"
+                                    onclick="return confirm('Are you sure you want to remove this ticket?')">
+                                Delete ticket
+                            </button>
+                        </div>
+                    </section>
+
+                </section>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
+    <script src="@Url.Content("~/js/change-ticket-status-modal.js")"></script>
+}
+
+@*<script>$(document).ready(function () {
+            $.each($("#titleText"), function () {
+                var scrollHeight = parseInt(this.scrollHeight);
+                $(this).height(scrollHeight);
+            });
+        })</script>
+
+    <script type="text/javascript">const textarea = document.getElementById('titleText');
+        textarea.addEventListener("keyup", e => {
+            textarea.style.height = "auto";
+            let scHeight = e.target.scrollHeight;
+            textarea.style.height = scHeight + "px";
+        });</script>*@

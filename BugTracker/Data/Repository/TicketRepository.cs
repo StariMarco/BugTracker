@@ -29,5 +29,23 @@ namespace BugTracker.Data.Repository
                 Value = i.Id.ToString()
             });
         }
+
+        public IEnumerable<SelectListItem> GetAllTypes()
+        {
+            return _db.TicketTypes.Select((TicketType i) => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+        }
+
+        public IEnumerable<SelectListItem> GetAllPriorities()
+        {
+            return _db.TicketPriorities.Select((TicketPriority i) => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+        }
     }
 }

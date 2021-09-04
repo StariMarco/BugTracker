@@ -9,5 +9,6 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<SelectListItem> Statuses { get; set; }
         public TicketStatus Status { get; set; }
         public Ticket Ticket { get; set; }
+        public IEnumerable<TicketAttachment> Attachments { get; set; }
     }
 }
