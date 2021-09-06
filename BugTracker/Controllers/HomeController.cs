@@ -58,26 +58,14 @@ namespace BugTracker.Controllers
                 _projectRepo.Add(project);
                 _projectRepo.Save();
 
-                // Add the project manager
-                UserProject projectManager = new UserProject()
+                // Add the creator as a project manager
+                UserProject creator = new UserProject()
                 {
-                    UserId = project.ProjectManagerId,
+                    UserId = project.CreatorId,
                     ProjectId = project.Id,
                     ProjectRoleId = WC.ProjectManagerId
                 };
-                _userProjectRepo.Add(projectManager);
-
-                // Add the creator as a project manager
-                if (project.ProjectManagerId != project.CreatorId)
-                {
-                    UserProject creator = new UserProject()
-                    {
-                        UserId = project.CreatorId,
-                        ProjectId = project.Id,
-                        ProjectRoleId = WC.ProjectManagerId
-                    };
-                    _userProjectRepo.Add(creator);
-                }
+                _userProjectRepo.Add(creator);
                 _projectRepo.Save();
 
                 string message = "The project was created successfully";

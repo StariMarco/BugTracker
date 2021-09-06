@@ -597,6 +597,11 @@ label {
     appearance: none;
 }
 
+    .user-search-dropdown:hover {
+        background-color: var(--color-label-hover);
+        cursor: pointer;
+    }
+
 .custom-select {
     position: relative;
 }

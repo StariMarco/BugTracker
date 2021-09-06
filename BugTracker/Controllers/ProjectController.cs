@@ -38,16 +38,6 @@ namespace BugTracker.Controllers
         {
             Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
 
-            //TODO: Change this to a modal user selector
-            IEnumerable<SelectListItem> users = _appUserRepo.GetAll().Select((AppUser i) => new SelectListItem
-            {
-                Text = i.FullName + " - " + i.Email,
-                Selected = i.Id == project.ProjectManagerId,
-                Value = i.Id.ToString()
-            });
-
-            ViewBag.UserList = users;
-
             return View(project);
         }
 

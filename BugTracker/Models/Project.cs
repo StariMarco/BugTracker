@@ -26,13 +26,6 @@ namespace BugTracker.Models
         public virtual AppUser Creator { get; set; }
 
         [Required]
-        public string ProjectManagerId { get; set; }
-
-        [ForeignKey("ProjectManagerId")]
-        public virtual AppUser ProjectManager { get; set; }
-
-
-        [Required]
         public DateTime CreatedAt { get; set; }
 
         public override string ToString()
@@ -42,7 +35,6 @@ namespace BugTracker.Models
             result += "\nDescription: " + Description;
             result += "\nType: " + Type;
             result += "\nCreatorId: " + CreatorId;
-            result += "\nProjectManagerId: " + ProjectManagerId;
             result += "\nCreatedAt: " + CreatedAt;
 
             return result;
