@@ -812,6 +812,27 @@ label {
         background-color: var(--color-primary-light);
     }
 
+/* tblAttachments */
+/*#tblAttachments .e-currentitem {
+    background-color: var(--color-primary);
+}
+
+#tblAttachments button {
+    border-radius: var(--border-radius)
+}
+
+#tblAttachments .e-primary {
+    color: var(--color-primary);
+}
+
+    #tblAttachments .e-primary:hover {
+        background-color: var(--color-primary-light);
+    }
+
+#tblAttachments .e-row:hover {
+    background-color: var(--color-divider);
+}*/
+
 /* Danger zone */
 .danger-zone-container {
     border: 1px solid var(--color-red);
@@ -1117,7 +1138,7 @@ label {
 
 /* Attachments + Comments */
 
-.ticket-section header {
+.ticket-section header, .ticket-section form {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1130,13 +1151,74 @@ label {
     align-items: center;
     justify-content: center;
     border-radius: var(--border-radius);
+    color: var(--color-secondary-text);
 }
-
-    #upload-btn i {
-        color: var(--color-secondary-text);
-    }
 
     #upload-btn:hover {
         background-color: var(--color-label-bg);
         cursor: pointer;
     }
+
+.grid-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    background-color: transparent;
+    color: var(--color-secondary-text);
+}
+
+    .grid-btn:hover {
+        background-color: #DEE1E6;
+        cursor: pointer;
+    }
+
+#tblAttachments {
+    border: 1px solid #e0e0e0;
+    border-collapse: collapse;
+}
+
+    #tblAttachments .header-row {
+        text-align: left;
+        background-color: #fff;
+    }
+
+        #tblAttachments .header-row:hover {
+            background-color: #fff;
+        }
+
+    #tblAttachments th {
+        font-weight: 500;
+        font-size: 14px;
+        color: rgba(0,0,0,0.54);
+        line-height: 35px;
+        padding-left: 18px;
+    }
+
+    #tblAttachments tr {
+        border: 1px solid #e0e0e0;
+    }
+
+        #tblAttachments tr:hover {
+            background-color: var(--color-divider);
+        }
+
+.empty-row {
+    color: var(--color-secondary-text);
+}
+
+    .empty-row:hover {
+        background-color: #fff !important;
+    }
+
+#tblAttachments td {
+    padding: 6px 18px;
+}
+
+.actions-td {
+    display: flex;
+    align-content: center;
+    justify-content: right;
+}

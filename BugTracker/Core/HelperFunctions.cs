@@ -32,8 +32,8 @@ namespace BugTracker.Core
             {
                 // Filter by name and/or title
                 items = items.Where(t => t.Title.ToLower().Contains(userfilter.ToLower())
-                || t.Reporter.FullName.ToLower().Contains(userfilter.ToLower())
-                || t.Developer.FullName.ToLower().Contains(userfilter.ToLower()));
+                || (t.Reporter != null && t.Reporter.FullName.ToLower().Contains(userfilter.ToLower()))
+                || (t.Developer != null && t.Developer.FullName.ToLower().Contains(userfilter.ToLower())));
             }
 
             if (typefilter != null && typefilter > 0)
@@ -73,6 +73,19 @@ namespace BugTracker.Core
                     notyf.Error("Something went wrong");
                 }
             }
+        }
+
+        public static string BytesToString(long value)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            int order = 0;
+            while (value >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                value /= 1024;
+            }
+
+            return String.Format("{0:0.##} {1}", value, sizes[order]);
         }
     }
 }

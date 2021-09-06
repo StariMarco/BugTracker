@@ -127,13 +127,15 @@ namespace BugTracker.Controllers
 
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
             IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
+            IEnumerable<TicketAttachment> attachments = _db.TicketAttachments.Include(a => a.User).Where(a => a.TicketId == ticketId);
 
             EditTicketVM editTicketVM = new EditTicketVM
             {
                 Project = project,
                 Ticket = ticket,
                 Priorities = priorities,
-                Types = types
+                Types = types,
+                Attachments = attachments
             };
 
             return View(editTicketVM);
@@ -197,7 +199,7 @@ namespace BugTracker.Controllers
                 Ticket = ticket
             };
 
-            return PartialView("_ChageTicketStatusModal", changeTicketStatusVM);
+            return PartialView("EditTicketPage/_ChageTicketStatusModal", changeTicketStatusVM);
         }
 
         [HttpPost]
@@ -251,7 +253,8 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadFile(int? projectId = 0, int? ticketId = 0, string path = null)
+        [ValidateAntiForgeryToken]
+        public IActionResult UploadFile(int projectId, int ticketId, string userId)
         {
             if (projectId <= 0)
                 return RedirectToAction(nameof(Index), "Home");
@@ -259,28 +262,96 @@ namespace BugTracker.Controllers
             if (ticketId <= 0)
                 return RedirectToAction(nameof(Index), new { id = projectId });
 
-            // Empty path
-            if (string.IsNullOrEmpty(path))
-            {
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
-                return RedirectToAction(nameof(Edit), new { projectId, ticketId });
-            }
-
             string webRootPath = _web.WebRootPath;
-
-            // Upload file
-            string uploadFolder = webRootPath + WC.AttachmentsPath;
-            string fileName = path.Split('\\').LastOrDefault();
-            string destFile = uploadFolder + fileName;
             var files = HttpContext.Request.Form.Files;
 
-            //using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
-            //{
-            //    System.IO.File.OpenRead(path).CopyTo(fileStream);
-            //}
+            try
+            {
+                if (files == null || files.Count == 0)
+                {
+                    string m = "An error occurred";
+                    HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, m);
+                    return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+                }
+
+                // Upload file
+                string uploadFolder = webRootPath + WC.AttachmentsPath;
+                string filename = files[0].FileName;
+                long size = files[0].Length;
+
+                using (var fileStream = new FileStream(Path.Combine(uploadFolder, filename), FileMode.Create))
+                {
+                    files[0].CopyTo(fileStream);
+                }
+
+                // Add a reference to the ticket in the db
+                TicketAttachment attachment = new TicketAttachment
+                {
+                    File = filename,
+                    TicketId = ticketId,
+                    UserId = userId,
+                    CreatedAt = DateTime.Now,
+                    Size = size
+                };
+
+                _db.TicketAttachments.Add(attachment);
+                _db.SaveChanges();
+
+                string message = "Attachment added successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
 
 
             return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteAttachment(int projectId, int ticketId, int attachmentId)
+        {
+            TicketAttachment attachment = _db.TicketAttachments.Find(attachmentId);
+            if (attachment == null) return NotFound();
+
+            string webRootPath = _web.WebRootPath;
+            string uploadFolder = webRootPath + WC.AttachmentsPath;
+            string fileToDelete = Path.Combine(uploadFolder, attachment.File);
+
+            try
+            {
+                // Delete file
+                if (System.IO.File.Exists(fileToDelete)) System.IO.File.Delete(fileToDelete);
+
+                // Delete attachment record
+                _db.TicketAttachments.Remove(attachment);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+        }
+
+        public IActionResult DownloadFile(int attachmentId)
+        {
+            TicketAttachment attachment = _db.TicketAttachments.Find(attachmentId);
+            if (attachment == null) return NotFound();
+
+            string webRootPath = _web.WebRootPath;
+            string uploadFolder = webRootPath + WC.AttachmentsPath;
+            string fileToDownload = Path.Combine(uploadFolder, attachment.File);
+
+            // Return file
+            if (!System.IO.File.Exists(fileToDownload)) return NotFound();
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(fileToDownload);
+
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, attachment.File);
         }
     }
 }

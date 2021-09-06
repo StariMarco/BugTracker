@@ -41,6 +41,7 @@
     <None Remove="AspNetCoreHero.ToastNotification" />
     <None Remove="Core\" />
     <None Remove="Views\Ticket\" />
+    <None Remove="Views\Shared\EditTicketPage\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -53,6 +54,7 @@
     <Folder Include="Views\Ticket\" />
     <Folder Include="wwwroot\assets\" />
     <Folder Include="wwwroot\assets\attachments\" />
+    <Folder Include="Views\Shared\EditTicketPage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />

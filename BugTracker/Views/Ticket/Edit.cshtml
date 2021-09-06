@@ -1,5 +1,10 @@
 ﻿@model BugTracker.Models.ViewModels.EditTicketVM;
 
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
+
+@inject UserManager<AppUser> UserManager
+
 <div class="project-main">
     <partial name="_SideNav" model="@Model.Project" />
     <div class="project-body">
@@ -9,7 +14,6 @@
             <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
         </div>
 
-        @*<form method="post" asp-action="Edit">*@
         <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
         <input id="inputProjectId" asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
         <div id="ticket-details-container">
@@ -36,13 +40,56 @@
 
                 @*Attachments*@
                 <div class="ticket-section">
-                    <header style="margin-bottom: 20px;">
+                    <form id="attachmentsForm" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;"
+                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-userId="@UserManager.GetUserId(User)" asp-action="UploadFile">
                         <h6 style="margin: 0;">Attachments</h6>
                         <label for="upload" id="upload-btn">
                             <i class="fas fa-plus"></i>
                         </label>
                         <input id="upload" name="upload" type="file" hidden />
-                    </header>
+                    </form>
+                    @*<ejs-grid id="tblAttachments" dataSource="@Model.Attachments" allowFiltering="true" allowSorting="true" allowPaging="true" allowSelection="false">
+                            <e-grid-filtersettings type="Menu"></e-grid-filtersettings>
+                            <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
+                            <e-grid-columns>
+                                <e-grid-column field="Id" headerText="Id" isPrimaryKey="true" visible="false"></e-grid-column>
+                                <e-grid-column field="File" headerText="Name" allowFiltering="false"></e-grid-column>
+                                <e-grid-column field="CreatedAt" headerText="Date added" allowFiltering="false" customFormat="@(new { type="date", format="d MMM yyyy mm:hh aa" })"></e-grid-column>
+                                <e-grid-column field="Id" headerText="" allowFiltering="false"
+                                               template='#deleteTemplate'></e-grid-column>
+                            </e-grid-columns>
+                        </ejs-grid>*@
+                    <table id="tblAttachments">
+                        <tr class="header-row">
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Date added</th>
+                            <th></th>
+                        </tr>
+                        @if (Model.Attachments.Count() == 0)
+                        {
+                            <tr class="empty-row">
+                                <td>No records to display</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var a in Model.Attachments)
+                            {
+                                <tr>
+                                    <td>@a.File</td>
+                                    <td>@HelperFunctions.BytesToString(a.Size)</td>
+                                    <td>@a.CreatedAt.ToString("d MMM yyyy hh:mm tt")</td>
+                                    <td class="actions-td">
+                                        <form method="post" title="Delete" asp-action="DeleteAttachment" asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this attachment?')" class="grid-btn"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                        <a class="grid-btn" style="margin-left: 10px; padding: 11px 18px;" href="/Ticket/DownloadFile?attachmentId=@a.Id" title="Download"><i class="fas fa-cloud-download-alt"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
                 </div>
 
                 @*Comments*@
@@ -156,7 +203,6 @@
 
             </section>
         </div>
-        @*</form>*@
     </div>
 </div>
 
@@ -197,18 +243,15 @@
         });
 
         input.addEventListener("change", () => {
-            const path = input.files[0].name;
+            //const filename = input.files[0].name;
             //const path = input.value.split('\\');
-            const filename = path[path.length - 1];
 
-            $.ajax({
-                url: "/Ticket/UploadFile",
-                type: "POST",
-                data: {
-                    projectId, ticketId, path: path.toString()
-                },
-            });
-        });</script>
+            $("#attachmentsForm").submit();
+        });
+
+        const deleteConfirmation = () => {
+            return confirm('Are you sure you want to remove this attachment?');
+        }</script>
 }
 
 @*<script>$(document).ready(function () {
