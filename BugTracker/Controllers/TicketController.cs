@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
@@ -8,6 +9,7 @@ using BugTracker.Data;
 using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,17 +24,27 @@ namespace BugTracker.Controllers
         private readonly IProjectRepository _projectRepo;
         private readonly ITicketRepository _ticketRepo;
         private readonly INotyfService _notyf;
+        private readonly IWebHostEnvironment _web;
 
-        public TicketController(ApplicationDbContext db, IProjectRepository projectRepo, ITicketRepository ticketRepo, INotyfService notyf)
+        public TicketController(ApplicationDbContext db, IProjectRepository projectRepo, ITicketRepository ticketRepo, INotyfService notyf, IWebHostEnvironment web)
         {
             _db = db;
             _projectRepo = projectRepo;
             _ticketRepo = ticketRepo;
             _notyf = notyf;
+            _web = web;
         }
 
-        public IActionResult Index(int id, string userfilter = null, int? statusfilter = null, int? typefilter = null)
+        public IActionResult Index(int id, string userfilter = null, int? statusfilter = null, int? typefilter = null,
+            string messageType = null, string message = null)
         {
+            // Manage toasts
+            if (messageType != null)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, messageType, message);
+                return RedirectToAction(nameof(Index), new { id = id, userfilter, statusfilter });
+            }
+
             Project project = _projectRepo.Find(id);
             IEnumerable<Ticket> tickets = _ticketRepo.GetAll(t => t.ProjectId == project.Id, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type", orderBy: (q) => q.OrderByDescending(t => t.CreatedAt));
             IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
@@ -130,23 +142,46 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Edit")]
-        public IActionResult EditPost(Ticket ticket)
+        public IActionResult EditPost(int id, string title, string description, string createdAt, string closedAt,
+            int projectId, string reporterId, string developerId, string reviewerId, int statusId, int priorityId, int typeId)
         {
+            string message = null;
+            string messageType = WC.MessageTypeSuccess;
+
+            DateTime createdDate = DateTime.Parse(createdAt);
+            DateTime? closedDate = closedAt != null ? DateTime.Parse(closedAt) : null;
+            Ticket ticket = new Ticket
+            {
+                Id = id,
+                Title = title ?? "-",
+                Description = description,
+                CreatedAt = createdDate,
+                ClosedAt = closedDate,
+                ProjectId = projectId,
+                ReporterId = reporterId,
+                DeveloperId = developerId,
+                ReviewerId = reviewerId,
+                StatusId = statusId,
+                PriorityId = priorityId,
+                TypeId = typeId,
+            };
+
             try
             {
                 _ticketRepo.Update(ticket);
                 _ticketRepo.Save();
 
-                string message = "Ticket updated successfully";
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+                message = "Ticket updated successfully";
+                messageType = WC.MessageTypeSuccess;
             }
             catch (Exception)
             {
                 // Error
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+                message = "Something went wrong";
+                messageType = WC.MessageTypeGeneralError;
             }
 
-            return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
+            return Json(new { redirectToUrl = Url.Action(nameof(Index), new { id = ticket.ProjectId, messageType, message }) });
         }
 
         [HttpGet]
@@ -216,11 +251,36 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult UploadFile(int projectId, TicketAttachment attachment)
+        public IActionResult UploadFile(int? projectId = 0, int? ticketId = 0, string path = null)
         {
+            if (projectId <= 0)
+                return RedirectToAction(nameof(Index), "Home");
 
-            return RedirectToAction(nameof(Index), new { id = projectId });
+            if (ticketId <= 0)
+                return RedirectToAction(nameof(Index), new { id = projectId });
+
+            // Empty path
+            if (string.IsNullOrEmpty(path))
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+                return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+            }
+
+            string webRootPath = _web.WebRootPath;
+
+            // Upload file
+            string uploadFolder = webRootPath + WC.AttachmentsPath;
+            string fileName = path.Split('\\').LastOrDefault();
+            string destFile = uploadFolder + fileName;
+            var files = HttpContext.Request.Form.Files;
+
+            //using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+            //{
+            //    System.IO.File.OpenRead(path).CopyTo(fileStream);
+            //}
+
+
+            return RedirectToAction(nameof(Edit), new { projectId, ticketId });
         }
     }
 }

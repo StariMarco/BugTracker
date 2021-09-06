@@ -51,8 +51,12 @@
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Core\" />
     <Folder Include="Views\Ticket\" />
+    <Folder Include="wwwroot\assets\" />
+    <Folder Include="wwwroot\assets\attachments\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />
+    <Content Remove="wwwroot\images\" />
+    <Content Remove="wwwroot\assets\attachments\" />
   </ItemGroup>
 </Project>

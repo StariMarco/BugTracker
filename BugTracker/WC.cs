@@ -5,6 +5,8 @@ namespace BugTracker
 {
     public static class WC
     {
+        public const string AttachmentsPath = @"/assets/attachments/";
+
         public const string AdminRole = "Admin";
         public const string UserRole = "User";
 
