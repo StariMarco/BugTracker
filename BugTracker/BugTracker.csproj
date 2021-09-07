@@ -60,5 +60,6 @@
     <Content Remove="wwwroot\css\" />
     <Content Remove="wwwroot\images\" />
     <Content Remove="wwwroot\assets\attachments\" />
+    <Content Remove="wwwroot\assets\attachments\BugTracker.png" />
   </ItemGroup>
 </Project>

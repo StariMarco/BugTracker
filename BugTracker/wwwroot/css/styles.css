@@ -241,6 +241,33 @@ a {
         background-color: var(--color-label-bg);
     }
 
+.btn-link {
+    padding: 0;
+    color: var(--color-primary-hover);
+    background-color: #fff;
+    transition: all 0;
+}
+
+    .btn-link:hover {
+        cursor: pointer;
+        text-decoration: underline;
+        background-color: #fff;
+    }
+
+.btn-select-user {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    background-color: #fff;
+    color: var(--color-primary-text);
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+}
+
+    .btn-select-user:hover {
+        background-color: var(--color-label-bg);
+    }
+
 /*Class to make the component impossible to select*/
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -990,7 +1017,7 @@ label {
     flex-direction: column;
     justify-content: stretch;
     align-items: start;
-    flex: 1;
+    flex: 4;
     margin-right: 20px;
 }
 
@@ -1004,7 +1031,7 @@ label {
     flex-direction: column;
     justify-content: stretch;
     align-items: start;
-    flex: 1;
+    flex: 3;
     margin-left: 20px;
 }
 
@@ -1141,7 +1168,7 @@ label {
     display: none;
 }
 
-/* Attachments + Comments */
+/* Attachments */
 
 .ticket-section header, .ticket-section form {
     display: flex;
@@ -1224,6 +1251,67 @@ label {
 
 .actions-td {
     display: flex;
-    align-content: center;
+    align-items: center;
     justify-content: right;
+}
+
+/* Comments */
+
+.input-comment {
+    background-color: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 8px 15px;
+    font-size: 1.4rem;
+    font-weight: 400;
+    transition: all var(--animation-duration-input);
+    width: 100%;
+}
+
+    .input-comment::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: var(--color-gray-text);
+    }
+
+    .input-comment::placeholder {
+        color: var(--color-gray-text);
+    }
+
+    .input-comment:hover {
+        background-color: var(--color-divider);
+    }
+
+.comment-container {
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    margin-top: 25px;
+}
+
+.comment-body {
+    margin-left: 20px;
+    width: 100%;
+}
+
+    .comment-body header {
+        justify-content: start;
+    }
+
+        .comment-body header span {
+            color: var(--color-secondary-text);
+        }
+
+    .comment-body p {
+        margin: 12px 0;
+        color: var(--color-primary-text);
+    }
+
+.comment-actions a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.comment-actions section {
+    display: flex;
+    align-content: start;
+    justify-items: center;
 }

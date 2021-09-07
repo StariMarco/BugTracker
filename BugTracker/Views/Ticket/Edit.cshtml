@@ -4,6 +4,7 @@
 @using BugTracker.Core
 
 @inject UserManager<AppUser> UserManager
+@inject SignInManager<AppUser> SignInManager
 
 <div class="project-main">
     <partial name="_SideNav" model="@Model.Project" />
@@ -48,17 +49,6 @@
                         </label>
                         <input id="upload" name="upload" type="file" hidden />
                     </form>
-                    @*<ejs-grid id="tblAttachments" dataSource="@Model.Attachments" allowFiltering="true" allowSorting="true" allowPaging="true" allowSelection="false">
-                            <e-grid-filtersettings type="Menu"></e-grid-filtersettings>
-                            <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
-                            <e-grid-columns>
-                                <e-grid-column field="Id" headerText="Id" isPrimaryKey="true" visible="false"></e-grid-column>
-                                <e-grid-column field="File" headerText="Name" allowFiltering="false"></e-grid-column>
-                                <e-grid-column field="CreatedAt" headerText="Date added" allowFiltering="false" customFormat="@(new { type="date", format="d MMM yyyy mm:hh aa" })"></e-grid-column>
-                                <e-grid-column field="Id" headerText="" allowFiltering="false"
-                                               template='#deleteTemplate'></e-grid-column>
-                            </e-grid-columns>
-                        </ejs-grid>*@
                     <table id="tblAttachments">
                         <tr class="header-row">
                             <th>Name</th>
@@ -95,6 +85,78 @@
                 @*Comments*@
                 <div class="ticket-section">
                     <h6>Comments</h6>
+                    <form method="post" style="align-items: start;" asp-action="AddComment"
+                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
+                        @{
+                            AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
+                            <input asp-for="Comment.UserId" hidden value="@user.Id" />
+                            <div style="width: 34px;">
+                                <div class="avatar">@user.FullName.FirstOrDefault()</div>
+                            </div>
+                            <div style="width: 100%; margin-left: 20px;">
+                                <input asp-for="Comment.Text" class="input-comment" style="margin-bottom: 3px;" placeholder="Add a comment..." />
+                                <span asp-validation-for="Comment.Text" class="text-error"></span>
+                            </div>
+                            <button type="submit" style="padding: 9px 18px; margin-left: 20px;">Add</button>
+                        }
+                    </form>
+
+                    @{
+                        AppUser u = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
+                        @foreach (var comment in Model.Comments)
+                        {
+                            string articleId = "comment-" + comment.Id.ToString();
+                            <article id="@articleId" class="comment-container">
+                                <div style="width: 34px;">
+                                    <div class="avatar">@comment.User.FullName.FirstOrDefault()</div>
+                                </div>
+                                <div class="comment-body">
+                                    <header>
+                                        <b style="margin-right: 15px;">@comment.User.FullName</b>
+                                        <span>@comment.CreatedAt.ToString("d MMM yyyy, hh:mm tt")</span>
+                                    </header>
+
+                                    @*Default State*@
+                                    <div id="commentDefault">
+                                        <p>@comment.Text</p>
+                                        <footer class="comment-actions">
+                                            <section>
+                                                @if (u.Id == comment.UserId)
+                                                {
+                                                    <a id="commentEditBtn" onclick="return showEditComment('@articleId')">Edit</a>
+                                                    <span style="margin: 0 12px;">•</span>
+                                                    <form method="post" asp-action="DeleteComment" asp-route-commentId="@comment.Id"
+                                                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
+                                                        <button type="submit" class="btn-link" onclick="return confirm('Are you sure you want to remove this comment?')" id="commentCancelBtn">Delete</button>
+                                                    </form>
+                                                }
+                                            </section>
+                                        </footer>
+                                    </div>
+
+                                    @*Edit State*@
+                                    <form method="post" asp-action="EditComment" id="commentEdit" style="display: none;"
+                                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
+                                        <input asp-for="Comment.UserId" hidden value="@u.Id" />
+                                        <input asp-for="Comment.Id" hidden value="@comment.Id" />
+                                        <input type="datetime" asp-for="Comment.CreatedAt" hidden value="@comment.CreatedAt" />
+                                        <div style="width: 100%; margin: 10px 0;">
+                                            <input asp-for="Comment.Text" value="@comment.Text" class="input-comment" style="margin-bottom: 3px;" placeholder="Add a comment..." />
+                                            <span asp-validation-for="Comment.Text" class="text-error"></span>
+                                        </div>
+                                        <footer class="comment-actions">
+                                            <section>
+                                                <button type="submit" style="padding: 8px 11px; margin-right: 15px;">Save</button>
+                                                <a id="commentCancelBtn" onclick="return showDefaultComment('@articleId')" style="margin: auto 0;">Cancel</a>
+                                            </section>
+                                        </footer>
+                                    </form>
+                                </div>
+                            </article>
+                        }
+                    }
+
+
                 </div>
             </section>
 
@@ -116,11 +178,18 @@
                         <span>Developer</span>
                         <div class="detail-value">
                             <input id="inputDeveloper" asp-for="Ticket.DeveloperId" hidden value="@Model.Ticket.DeveloperId" />
-                            @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
-                            {
-                                <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
-                                @Model.Ticket.Developer?.FullName
-                            }
+                            <button type="button" class="btn-select-user"
+                                    data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
+                                @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
+                                {
+                                    <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
+                                    @Model.Ticket.Developer?.FullName
+                                }
+                                else
+                                {
+                                    <div>Select user</div>
+                                }
+                            </button>
                         </div>
                         <span>Reviewer</span>
                         <div class="detail-value">
@@ -193,11 +262,13 @@
                             <b>Delete this ticket</b><br />
                             Once you delete a ticket, there is no going back. Please be certain.
                         </p>
-                        <button type="submit" style="white-space: nowrap;" asp-controller="Ticket" asp-action="DeleteTicket"
-                                asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id"
-                                onclick="return confirm('Are you sure you want to remove this ticket?')">
-                            Delete ticket
-                        </button>
+                        <form method="post" asp-action="DeleteTicket"
+                              asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id">
+                            <button type="submit" style="white-space: nowrap;"
+                                    onclick="return confirm('Are you sure you want to remove this ticket?')">
+                                Delete ticket
+                            </button>
+                        </form>
                     </div>
                 </section>
 
@@ -211,21 +282,19 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
-    <script src="@Url.Content("~/js/change-ticket-status-modal.js")"></script>
+    <script src="@Url.Content("~/js/ticket-modal.js")"></script>
     <script src="@Url.Content("~/js/get-ticket-data.js")"></script>
+    <script src="@Url.Content("~/js/ticket-comments.js")"></script>
 
     <script type="text/javascript">
-    function getToken() {
-        var token = '@Html.AntiForgeryToken()';
-        token = $(token).val();
-        return token;
-   }
+        function getToken() {
+            var token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+            return token;
+         }
     </script>
 
     <script>const input = document.getElementById("upload");
-        const btn = document.getElementById("upload-btn");
-        const ticketId = document.getElementById("inputTicketId").value;
-        const projectId = document.getElementById("inputProjectId").value;
 
         const saveBtn = document.getElementById("saveBtn");
         saveBtn.addEventListener("click", () => {
@@ -243,27 +312,6 @@
         });
 
         input.addEventListener("change", () => {
-            //const filename = input.files[0].name;
-            //const path = input.value.split('\\');
-
             $("#attachmentsForm").submit();
-        });
-
-        const deleteConfirmation = () => {
-            return confirm('Are you sure you want to remove this attachment?');
-        }</script>
+        });</script>
 }
-
-@*<script>$(document).ready(function () {
-            $.each($("#titleText"), function () {
-                var scrollHeight = parseInt(this.scrollHeight);
-                $(this).height(scrollHeight);
-            });
-        })</script>
-
-    <script type="text/javascript">const textarea = document.getElementById('titleText');
-        textarea.addEventListener("keyup", e => {
-            textarea.style.height = "auto";
-            let scHeight = e.target.scrollHeight;
-            textarea.style.height = scHeight + "px";
-        });</script>*@

@@ -11,7 +11,8 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         [Required]
-        public string Comment { get; set; }
+        [MaxLength(512)]
+        public string Text { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

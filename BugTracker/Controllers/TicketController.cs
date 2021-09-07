@@ -35,6 +35,8 @@ namespace BugTracker.Controllers
             _web = web;
         }
 
+        #region Tickets page
+
         public IActionResult Index(int id, string userfilter = null, int? statusfilter = null, int? typefilter = null,
             string messageType = null, string message = null)
         {
@@ -105,20 +107,9 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
         }
 
-        // TODO: Delete this
-        public IActionResult Details(int projectId, int ticketId)
-        {
-            Project project = _projectRepo.Find(projectId);
-            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type");
+        #endregion
 
-            TicketDetailsVM ticketDetailsVM = new TicketDetailsVM
-            {
-                Project = project,
-                Ticket = ticket
-            };
-
-            return View(ticketDetailsVM);
-        }
+        #region Edit Ticket
 
         public IActionResult Edit(int projectId, int ticketId)
         {
@@ -128,6 +119,7 @@ namespace BugTracker.Controllers
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
             IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
             IEnumerable<TicketAttachment> attachments = _db.TicketAttachments.Include(a => a.User).Where(a => a.TicketId == ticketId);
+            IEnumerable<TicketComment> comments = _db.TicketComments.OrderByDescending(c => c.CreatedAt).Include(a => a.User).Where(a => a.TicketId == ticketId);
 
             EditTicketVM editTicketVM = new EditTicketVM
             {
@@ -135,7 +127,9 @@ namespace BugTracker.Controllers
                 Ticket = ticket,
                 Priorities = priorities,
                 Types = types,
-                Attachments = attachments
+                Attachments = attachments,
+                Comments = comments,
+                Comment = new TicketComment()
             };
 
             return View(editTicketVM);
@@ -186,6 +180,10 @@ namespace BugTracker.Controllers
             return Json(new { redirectToUrl = Url.Action(nameof(Index), new { id = ticket.ProjectId, messageType, message }) });
         }
 
+        #endregion
+
+        #region Change Ticket Status
+
         [HttpGet]
         public IActionResult ChangeStatus(int id)
         {
@@ -229,28 +227,9 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Edit), new { projectId = ticket.ProjectId, ticketId = ticketId });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [ActionName("DeleteTicket")]
-        public IActionResult DeleteTicket(int ticketId, int projectId)
-        {
-            try
-            {
-                Ticket ticket = _ticketRepo.Find(ticketId);
-                _ticketRepo.Remove(ticket);
-                _ticketRepo.Save();
+        #endregion
 
-                string message = "Ticket deleted successfully";
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
-            }
-            catch (Exception)
-            {
-                // Error
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
-            }
-
-            return RedirectToAction(nameof(Index), new { id = projectId });
-        }
+        #region Attachments
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -352,6 +331,136 @@ namespace BugTracker.Controllers
             byte[] fileBytes = System.IO.File.ReadAllBytes(fileToDownload);
 
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, attachment.File);
+        }
+
+        #endregion
+
+        #region Comments
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddComment(int projectId, int ticketId, TicketComment comment)
+        {
+            comment.TicketId = ticketId;
+            comment.CreatedAt = DateTime.Now;
+
+            try
+            {
+                _db.TicketComments.Add(comment);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditComment(int projectId, int ticketId, TicketComment comment)
+        {
+            comment.TicketId = ticketId;
+
+            try
+            {
+                _db.TicketComments.Update(comment);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteComment(int projectId, int ticketId, int commentId)
+        {
+            try
+            {
+                TicketComment comment = _db.TicketComments.Find(commentId);
+
+                _db.TicketComments.Remove(comment);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+        }
+
+        #endregion
+
+        #region Change Ticket Developer
+
+        [HttpGet]
+        public IActionResult ChangeDeveloper(int projectId, int ticketId)
+        {
+            IEnumerable<UserProject> users = _db.UsersProjects.Include(u => u.User).Where(u => u.ProjectId == projectId && u.ProjectRoleId == WC.DeveloperId);
+
+            ChangeTicketDeveloperVM changeDeveloperVM = new ChangeTicketDeveloperVM()
+            {
+                Users = users,
+                SelectedUser = new AppUser(),
+                TicketId = ticketId
+            };
+
+            return PartialView("EditTicketPage/_ChangeTicketDeveloperModal", changeDeveloperVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("ChangeDeveloper")]
+        public IActionResult ChangeDeveloperPost(int ticketId, AppUser selectedUser)
+        {
+            Ticket ticket = _ticketRepo.Find(ticketId);
+            ticket.DeveloperId = selectedUser.Id;
+
+            try
+            {
+                _ticketRepo.Update(ticket);
+                _ticketRepo.Save();
+
+                string message = "Developer update successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Edit), new { ticket.ProjectId, ticketId });
+        }
+
+        #endregion
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("DeleteTicket")]
+        public IActionResult DeleteTicket(int ticketId, int projectId)
+        {
+            try
+            {
+                Ticket ticket = _ticketRepo.Find(ticketId);
+                _ticketRepo.Remove(ticket);
+                _ticketRepo.Save();
+
+                string message = "Ticket deleted successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                // Error
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Index), new { id = projectId });
         }
     }
 }
