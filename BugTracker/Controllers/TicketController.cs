@@ -159,9 +159,9 @@ namespace BugTracker.Controllers
 
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
             IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
-            IEnumerable<TicketAttachment> attachments = _db.TicketAttachments.Include(a => a.User).Where(a => a.TicketId == ticketId);
-            IEnumerable<TicketComment> comments = _db.TicketComments.OrderByDescending(c => c.CreatedAt).Include(a => a.User).Where(a => a.TicketId == ticketId);
-            IEnumerable<HistoryChange> changes = _db.HistoryChanges.OrderByDescending(c => c.Timestamp).Include(a => a.User).Include(a => a.ActionType).Where(a => a.TicketId == ticketId);
+            IEnumerable<TicketAttachment> attachments = _ticketRepo.GetAllAttachments(ticketId);
+            IEnumerable<TicketComment> comments = _ticketRepo.GetAllComments(ticketId);
+            IEnumerable<HistoryChange> changes = _ticketRepo.GetAllChanges(ticketId);
 
             EditTicketVM editTicketVM = new EditTicketVM
             {
@@ -238,7 +238,7 @@ namespace BugTracker.Controllers
             List<HistoryChange> changes = new List<HistoryChange>();
 
             // Title
-            if (ticket.Title.Trim() != oldTicket.Title.Trim())
+            if (ticket.Title?.Trim() != oldTicket.Title?.Trim())
             {
                 changes.Add(new HistoryChange
                 {
@@ -253,7 +253,7 @@ namespace BugTracker.Controllers
             }
 
             // Description
-            if (ticket.Description.Trim() != oldTicket.Description.Trim())
+            if (ticket.Description?.Trim() != oldTicket.Description?.Trim())
             {
                 changes.Add(new HistoryChange
                 {
@@ -261,8 +261,8 @@ namespace BugTracker.Controllers
                     ProjectId = ticket.ProjectId,
                     UserId = userId,
                     ActionTypeId = WC.actionTypeDescription,
-                    Before = oldTicket.Description,
-                    After = ticket.Description,
+                    Before = string.IsNullOrEmpty(oldTicket.Description) ? "None" : oldTicket.Description,
+                    After = string.IsNullOrEmpty(ticket.Description) ? "None" : ticket.Description,
                     Timestamp = DateTime.Now
                 });
             }

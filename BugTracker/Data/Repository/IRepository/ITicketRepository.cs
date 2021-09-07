@@ -15,5 +15,8 @@ namespace BugTracker.Data.Repository.IRepository
         public IEnumerable<SelectListItem> GetAllStatuses();
         public IEnumerable<SelectListItem> GetAllTypes();
         public IEnumerable<SelectListItem> GetAllPriorities();
+        public IEnumerable<TicketAttachment> GetAllAttachments(int ticketId);
+        public IEnumerable<TicketComment> GetAllComments(int ticketId);
+        public IEnumerable<HistoryChange> GetAllChanges(int ticketId);
     }
 }

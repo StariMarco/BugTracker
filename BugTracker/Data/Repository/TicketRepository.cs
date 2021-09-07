@@ -6,6 +6,7 @@ using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Data.Repository
 {
@@ -67,6 +68,21 @@ namespace BugTracker.Data.Repository
 
             // Delete all history
             _db.HistoryChanges.RemoveRange(_db.HistoryChanges.Where(c => c.TicketId == ticketId));
+        }
+
+        public IEnumerable<TicketAttachment> GetAllAttachments(int ticketId)
+        {
+            return _db.TicketAttachments.Include(a => a.User).Where(a => a.TicketId == ticketId);
+        }
+
+        public IEnumerable<TicketComment> GetAllComments(int ticketId)
+        {
+            return _db.TicketComments.OrderByDescending(c => c.CreatedAt).Include(a => a.User).Where(a => a.TicketId == ticketId);
+        }
+
+        public IEnumerable<HistoryChange> GetAllChanges(int ticketId)
+        {
+            return _db.HistoryChanges.OrderByDescending(c => c.Timestamp).Include(a => a.User).Include(a => a.ActionType).Where(a => a.TicketId == ticketId);
         }
     }
 }

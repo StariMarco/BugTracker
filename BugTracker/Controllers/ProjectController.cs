@@ -8,6 +8,7 @@ using BugTracker.Data;
 using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,15 +24,19 @@ namespace BugTracker.Controllers
         private readonly IProjectRepository _projectRepo;
         private readonly IAppUserRepository _appUserRepo;
         private readonly IUserProjectRepository _userProjectRepo;
+        private readonly ITicketRepository _ticketRepo;
         private readonly INotyfService _notyf;
+        private readonly IWebHostEnvironment _web;
 
-        public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, INotyfService notyf)
+        public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, ITicketRepository ticketRepo, INotyfService notyf, IWebHostEnvironment web)
         {
             _projetRoleRepo = projetRoleRepo;
             _projectRepo = projectRepo;
             _appUserRepo = appUserRepo;
             _userProjectRepo = userProjectRepo;
+            _ticketRepo = ticketRepo;
             _notyf = notyf;
+            _web = web;
         }
 
         public IActionResult Settings(int id)
@@ -145,11 +150,8 @@ namespace BugTracker.Controllers
         {
             try
             {
-                // Remove all the UserProjects from the db
-                _userProjectRepo.RemoveRange(_userProjectRepo.GetAll(up => up.ProjectId == project.Id));
-
-                // Remove the project from the db
-                _projectRepo.Remove(project);
+                // Remove the project from the db (with all the tickets, comments ecc...)
+                _projectRepo.RemoveProject(_web, _ticketRepo, project);
                 _projectRepo.Save();
 
                 string message = "The project was deleted successfully";
