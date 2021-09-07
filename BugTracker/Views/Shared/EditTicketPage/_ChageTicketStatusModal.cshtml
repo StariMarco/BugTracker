@@ -1,9 +1,16 @@
 ﻿@model BugTracker.Models.ViewModels.ChangeTicketStatusVM;
 
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<AppUser> UserManager
+@inject SignInManager<AppUser> SignInManager
+
 <div id="changeStatusModal" class="modal">
     <div class="status-modal-content">
         <h1>Change ticket status</h1>
-        <form method="post" asp-action="ChangeStatus" asp-route-ticketId="@Model.Ticket.Id" style="display: flex; flex-direction: column; align-items: start;">
+        <form method="post" asp-action="ChangeStatus" asp-route-ticketId="@Model.Ticket.Id"
+              asp-route-userId="@UserManager.GetUserId(User)"
+              style="display: flex; flex-direction: column; align-items: start;">
 
             <div class="form-group-contained" style="width: 100%">
                 <label>Select the status</label>

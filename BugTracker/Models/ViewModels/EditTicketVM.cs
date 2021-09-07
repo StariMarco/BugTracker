@@ -13,5 +13,6 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<TicketAttachment> Attachments { get; set; }
         public IEnumerable<TicketComment> Comments { get; set; }
         public TicketComment Comment { get; set; }
+        public IEnumerable<HistoryChange> HistoryChanges { get; set; }
     }
 }

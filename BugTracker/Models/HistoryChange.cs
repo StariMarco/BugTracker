@@ -14,6 +14,8 @@ namespace BugTracker.Models
 
         public string After { get; set; }
 
+        public DateTime Timestamp { get; set; }
+
         //
         // Foreign Keys
         //

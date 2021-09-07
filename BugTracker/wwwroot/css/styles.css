@@ -1141,6 +1141,10 @@ label {
     font-weight: 400;
 }
 
+    #ticket-timeline-body .timeline-item:not(:last-child) {
+        margin-bottom: 25px;
+    }
+
     #ticket-timeline-body b {
         font-weight: 500;
     }
@@ -1160,7 +1164,8 @@ label {
     }
 
 .timeline-content {
-    color: var(--color-secondary-text)
+    color: var(--color-secondary-text);
+    margin-top: 12px;
 }
 
 .hidden {

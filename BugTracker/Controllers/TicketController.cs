@@ -35,7 +35,7 @@ namespace BugTracker.Controllers
             _web = web;
         }
 
-        #region Tickets page
+        #region Tickets Index + Create + Delete Actions
 
         public IActionResult Index(int id, string userfilter = null, int? statusfilter = null, int? typefilter = null,
             string messageType = null, string message = null)
@@ -91,9 +91,24 @@ namespace BugTracker.Controllers
             ticket.CreatedAt = DateTime.Now;
             ticket.StatusId = WC.StatusToDo;
 
+
             try
             {
                 _db.Tickets.Add(ticket);
+                _db.SaveChanges();
+
+                HistoryChange change = new HistoryChange
+                {
+                    TicketId = ticket.Id,
+                    ProjectId = ticket.ProjectId,
+                    UserId = ticket.ReporterId,
+                    ActionTypeId = WC.actionTypeCreateTicket,
+                    Before = null,
+                    After = null,
+                    Timestamp = DateTime.Now
+                };
+
+                _db.HistoryChanges.Add(change);
                 _db.SaveChanges();
 
                 string message = "The ticket was created successfully";
@@ -105,6 +120,32 @@ namespace BugTracker.Controllers
             }
 
             return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("DeleteTicket")]
+        public IActionResult DeleteTicket(int ticketId, int projectId)
+        {
+            try
+            {
+                Ticket ticket = _ticketRepo.Find(ticketId);
+
+                // Delete the ticket
+                _ticketRepo.RemoveTicket(_web, ticket);
+
+                _ticketRepo.Save();
+
+                string message = "Ticket deleted successfully";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (Exception)
+            {
+                // Error
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+            }
+
+            return RedirectToAction(nameof(Index), new { id = projectId });
         }
 
         #endregion
@@ -120,6 +161,7 @@ namespace BugTracker.Controllers
             IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
             IEnumerable<TicketAttachment> attachments = _db.TicketAttachments.Include(a => a.User).Where(a => a.TicketId == ticketId);
             IEnumerable<TicketComment> comments = _db.TicketComments.OrderByDescending(c => c.CreatedAt).Include(a => a.User).Where(a => a.TicketId == ticketId);
+            IEnumerable<HistoryChange> changes = _db.HistoryChanges.OrderByDescending(c => c.Timestamp).Include(a => a.User).Include(a => a.ActionType).Where(a => a.TicketId == ticketId);
 
             EditTicketVM editTicketVM = new EditTicketVM
             {
@@ -129,7 +171,8 @@ namespace BugTracker.Controllers
                 Types = types,
                 Attachments = attachments,
                 Comments = comments,
-                Comment = new TicketComment()
+                Comment = new TicketComment(),
+                HistoryChanges = changes
             };
 
             return View(editTicketVM);
@@ -139,7 +182,7 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         [ActionName("Edit")]
         public IActionResult EditPost(int id, string title, string description, string createdAt, string closedAt,
-            int projectId, string reporterId, string developerId, string reviewerId, int statusId, int priorityId, int typeId)
+            int projectId, string reporterId, string developerId, string reviewerId, int statusId, int priorityId, int typeId, string currentUserId)
         {
             string message = null;
             string messageType = WC.MessageTypeSuccess;
@@ -162,22 +205,99 @@ namespace BugTracker.Controllers
                 TypeId = typeId,
             };
 
+            ticket.Priority = _db.TicketPriorities.Find(ticket.PriorityId);
+            ticket.Type = _db.TicketTypes.Find(ticket.TypeId);
+
+            Ticket oldTicket = _ticketRepo.FirstOrDefault(t => t.Id == id, includeProperties: "Priority,Type", isTracking: false);
+
+            var changes = GetHistoryChanges(ticket, oldTicket, currentUserId);
+
             try
             {
                 _ticketRepo.Update(ticket);
+                if (changes.Count > 0) _db.HistoryChanges.AddRange(changes);
                 _ticketRepo.Save();
 
                 message = "Ticket updated successfully";
                 messageType = WC.MessageTypeSuccess;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // Error
                 message = "Something went wrong";
                 messageType = WC.MessageTypeGeneralError;
+
+                Console.WriteLine(e.Message);
             }
 
             return Json(new { redirectToUrl = Url.Action(nameof(Index), new { id = ticket.ProjectId, messageType, message }) });
+        }
+
+        private List<HistoryChange> GetHistoryChanges(Ticket ticket, Ticket oldTicket, string userId)
+        {
+            List<HistoryChange> changes = new List<HistoryChange>();
+
+            // Title
+            if (ticket.Title.Trim() != oldTicket.Title.Trim())
+            {
+                changes.Add(new HistoryChange
+                {
+                    TicketId = ticket.Id,
+                    ProjectId = ticket.ProjectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypeTitle,
+                    Before = oldTicket.Title,
+                    After = ticket.Title,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            // Description
+            if (ticket.Description.Trim() != oldTicket.Description.Trim())
+            {
+                changes.Add(new HistoryChange
+                {
+                    TicketId = ticket.Id,
+                    ProjectId = ticket.ProjectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypeDescription,
+                    Before = oldTicket.Description,
+                    After = ticket.Description,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            // Priority
+            if (ticket.PriorityId != oldTicket.PriorityId)
+            {
+                changes.Add(new HistoryChange
+                {
+                    TicketId = ticket.Id,
+                    ProjectId = ticket.ProjectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypePriority,
+                    Before = oldTicket.Priority.Name,
+                    After = ticket.Priority.Name,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            // Type
+            if (ticket.TypeId != oldTicket.TypeId)
+            {
+                changes.Add(new HistoryChange
+                {
+                    TicketId = ticket.Id,
+                    ProjectId = ticket.ProjectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypeType,
+                    Before = oldTicket.Type.Name,
+                    After = ticket.Type.Name,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            return changes;
         }
 
         #endregion
@@ -203,15 +323,41 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("ChangeStatus")]
-        public IActionResult ChangeStatusPost(TicketStatus status, int ticketId)
+        public IActionResult ChangeStatusPost(TicketStatus status, int ticketId, string userId)
         {
-            Ticket ticket = _ticketRepo.Find(ticketId);
+            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Status");
 
+            if (ticket.StatusId == status.Id)
+            {
+                // Don't change the status if is equal to the previous one
+                string message = "This status is already selected";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeNeutral, message);
+                return RedirectToAction(nameof(Edit), new { projectId = ticket.ProjectId, ticketId = ticketId });
+            }
+
+            // Get the ticket status before the change
+            string statusBefore = ticket.Status.Id.ToString();
+
+            // Change the ticket status
             ticket.StatusId = status.Id;
+
+            // Create the history record
+            HistoryChange change = new HistoryChange
+            {
+                TicketId = ticket.Id,
+                ProjectId = ticket.ProjectId,
+                UserId = userId,
+                ActionTypeId = WC.actionTypeStatus,
+                Before = statusBefore,
+                After = status.Id.ToString(),
+                Timestamp = DateTime.Now
+            };
 
             try
             {
+                // Update
                 _ticketRepo.Update(ticket);
+                _db.HistoryChanges.Add(change);
                 _ticketRepo.Save();
 
                 string message = "Ticket status updated successfully";
@@ -273,7 +419,20 @@ namespace BugTracker.Controllers
                     Size = size
                 };
 
+                // Create the ticket history record
+                HistoryChange change = new HistoryChange
+                {
+                    TicketId = ticketId,
+                    ProjectId = projectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypeAddAttachment,
+                    Before = "None",
+                    After = filename,
+                    Timestamp = DateTime.Now
+                };
+
                 _db.TicketAttachments.Add(attachment);
+                _db.HistoryChanges.Add(change);
                 _db.SaveChanges();
 
                 string message = "Attachment added successfully";
@@ -290,22 +449,31 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteAttachment(int projectId, int ticketId, int attachmentId)
+        public IActionResult DeleteAttachment(int projectId, int ticketId, int attachmentId, string userId)
         {
             TicketAttachment attachment = _db.TicketAttachments.Find(attachmentId);
             if (attachment == null) return NotFound();
 
-            string webRootPath = _web.WebRootPath;
-            string uploadFolder = webRootPath + WC.AttachmentsPath;
-            string fileToDelete = Path.Combine(uploadFolder, attachment.File);
-
             try
             {
                 // Delete file
-                if (System.IO.File.Exists(fileToDelete)) System.IO.File.Delete(fileToDelete);
+                HelperFunctions.DeleteFile(_web, attachment.File);
+
+                // Create the ticket history record
+                HistoryChange change = new HistoryChange
+                {
+                    TicketId = ticketId,
+                    ProjectId = projectId,
+                    UserId = userId,
+                    ActionTypeId = WC.actionTypeDeleteAttachment,
+                    Before = attachment.File,
+                    After = "None",
+                    Timestamp = DateTime.Now
+                };
 
                 // Delete attachment record
                 _db.TicketAttachments.Remove(attachment);
+                _db.HistoryChanges.Add(change);
                 _db.SaveChanges();
             }
             catch (Exception)
@@ -359,13 +527,26 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditComment(int projectId, int ticketId, TicketComment comment)
+        public IActionResult EditComment(int projectId, int ticketId, string oldComment, TicketComment comment)
         {
             comment.TicketId = ticketId;
+
+            // Create the ticket history record
+            HistoryChange change = new HistoryChange
+            {
+                TicketId = ticketId,
+                ProjectId = projectId,
+                UserId = comment.UserId,
+                ActionTypeId = WC.actionTypeEditComment,
+                Before = oldComment,
+                After = comment.Text,
+                Timestamp = DateTime.Now
+            };
 
             try
             {
                 _db.TicketComments.Update(comment);
+                _db.HistoryChanges.Add(change);
                 _db.SaveChanges();
             }
             catch (Exception)
@@ -384,7 +565,20 @@ namespace BugTracker.Controllers
             {
                 TicketComment comment = _db.TicketComments.Find(commentId);
 
+                // Create the ticket history record
+                HistoryChange change = new HistoryChange
+                {
+                    TicketId = ticketId,
+                    ProjectId = projectId,
+                    UserId = comment.UserId,
+                    ActionTypeId = WC.actionTypeDeleteComment,
+                    Before = comment.Text,
+                    After = "None",
+                    Timestamp = DateTime.Now
+                };
+
                 _db.TicketComments.Remove(comment);
+                _db.HistoryChanges.Add(change);
                 _db.SaveChanges();
             }
             catch (Exception)
@@ -417,14 +611,40 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("ChangeDeveloper")]
-        public IActionResult ChangeDeveloperPost(int ticketId, AppUser selectedUser)
+        public IActionResult ChangeDeveloperPost(int ticketId, string userId, AppUser selectedUser)
         {
-            Ticket ticket = _ticketRepo.Find(ticketId);
+            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Developer");
+
+            if (ticket.DeveloperId == selectedUser.Id)
+            {
+                // Don't change the status if is equal to the previous one
+                string message = "This developer is already selected";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeNeutral, message);
+                return RedirectToAction(nameof(Edit), new { projectId = ticket.ProjectId, ticketId = ticketId });
+            }
+
+            // Get the previous dev
+            string beforeStr = string.IsNullOrEmpty(ticket.DeveloperId) ? "None" : ticket.Developer.FullName;
+
+            // Update the dev
             ticket.DeveloperId = selectedUser.Id;
+
+            // Create the ticket history record
+            HistoryChange change = new HistoryChange
+            {
+                TicketId = ticket.Id,
+                ProjectId = ticket.ProjectId,
+                UserId = userId,
+                ActionTypeId = WC.actionTypeDeveloper,
+                Before = beforeStr,
+                After = selectedUser.FullName,
+                Timestamp = DateTime.Now
+            };
 
             try
             {
                 _ticketRepo.Update(ticket);
+                _db.HistoryChanges.Add(change);
                 _ticketRepo.Save();
 
                 string message = "Developer update successfully";
@@ -440,27 +660,5 @@ namespace BugTracker.Controllers
 
         #endregion
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [ActionName("DeleteTicket")]
-        public IActionResult DeleteTicket(int ticketId, int projectId)
-        {
-            try
-            {
-                Ticket ticket = _ticketRepo.Find(ticketId);
-                _ticketRepo.Remove(ticket);
-                _ticketRepo.Save();
-
-                string message = "Ticket deleted successfully";
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
-            }
-            catch (Exception)
-            {
-                // Error
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
-            }
-
-            return RedirectToAction(nameof(Index), new { id = projectId });
-        }
     }
 }

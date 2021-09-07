@@ -1,6 +1,7 @@
 ﻿const getTicketData = () => {
     const ticketId = document.getElementById("inputTicketId").value;
     const projectId = document.getElementById("inputProjectId").value;
+    const currentUserId = document.getElementById("currentUserId").value;
 
     const title = document.getElementById("inputTitle").value;
     const description = document.getElementById("inputDescription").value;
@@ -15,7 +16,6 @@
     const priorityId = document.getElementById("inputPriority").value;
     const typeId = document.getElementById("inputType").value;
 
-
     return {
         id: ticketId,
         title: title,
@@ -28,6 +28,7 @@
         reviewerId: reviewerId,
         statusId: statusId,
         priorityId: priorityId,
-        typeId: typeId
+        typeId: typeId,
+        currentUserId: currentUserId
     };
-};
+}

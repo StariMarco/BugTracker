@@ -1,9 +1,15 @@
 ﻿@model BugTracker.Models.ViewModels.ChangeTicketDeveloperVM;
 
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<AppUser> UserManager
+@inject SignInManager<AppUser> SignInManager
+
 <div id="changeDeveloperModal" class="modal">
     <div class="modal-content">
         <h1>Change developer</h1>
-        <form method="post" asp-action="ChangeDeveloper" asp-route-ticketId="@Model.TicketId" style="display: flex; flex-direction: column; align-items: start;">
+        <form method="post" asp-action="ChangeDeveloper" asp-route-ticketId="@Model.TicketId" asp-route-userId="@UserManager.GetUserId(User)"
+              style="display: flex; flex-direction: column; align-items: start;">
 
             @*User Table*@
             <label>Select the user</label>
@@ -24,6 +30,7 @@
             <section class="form-group-contained" style="margin-right: 30px; margin-bottom: 0px;">
                 <label>Selected user</label>
                 <input id="userIdInput" asp-for="SelectedUser.Id" hidden />
+                <input id="userNameInput" asp-for="SelectedUser.FullName" hidden />
                 <div id="selectedUserName" class="fake-input"
                      style="min-width: 200px; padding: 7px 8px; color: #162643; border: 1px solid #DADDE2; ">
                     -

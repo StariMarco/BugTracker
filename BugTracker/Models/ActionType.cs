@@ -10,6 +10,9 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         [Required]
+        public string Type { get; set; }
+
+        [Required]
         [DisplayName("Action Text")]
         public string Text { get; set; }
     }

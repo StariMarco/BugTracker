@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace BugTracker.Core
 {
@@ -72,6 +74,11 @@ namespace BugTracker.Core
                     // Show general error toast
                     notyf.Error("Something went wrong");
                 }
+                else if (messageType == WC.MessageTypeNeutral)
+                {
+                    // Show general error toast
+                    notyf.Information(message);
+                }
             }
         }
 
@@ -86,6 +93,49 @@ namespace BugTracker.Core
             }
 
             return String.Format("{0:0.##} {1}", value, sizes[order]);
+        }
+
+        public static string GetStatusClassFromId(int? id = null, string idString = null)
+        {
+            int? val;
+            try
+            {
+                val = (id != null) ? id : int.Parse(idString);
+            }
+            catch (Exception)
+            {
+                return "todo-tag";
+            }
+
+            if (val == null || val == 0) return "todo-tag";
+
+            return WC.StatusClassMap[val ?? 1];
+        }
+
+        public static string GetStatusNameFromId(int? id = null, string idString = null)
+        {
+            int? val;
+            try
+            {
+                val = (id != null) ? id : int.Parse(idString);
+            }
+            catch (Exception)
+            {
+                return "To Do";
+            }
+
+            if (val == null || val == 0) return "To Do";
+
+            return WC.StatusNameMap[val ?? 1];
+        }
+
+        public static void DeleteFile(IWebHostEnvironment web, string filename)
+        {
+            string webRootPath = web.WebRootPath;
+            string uploadFolder = webRootPath + WC.AttachmentsPath;
+            string fileToDelete = Path.Combine(uploadFolder, filename);
+
+            if (File.Exists(fileToDelete)) File.Delete(fileToDelete);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BugTracker.Data.Repository.IRepository
@@ -8,6 +9,8 @@ namespace BugTracker.Data.Repository.IRepository
     public interface ITicketRepository : IRepository<Ticket>
     {
         void Update(Ticket obj);
+
+        void RemoveTicket(IWebHostEnvironment web, Ticket obj);
 
         public IEnumerable<SelectListItem> GetAllStatuses();
         public IEnumerable<SelectListItem> GetAllTypes();

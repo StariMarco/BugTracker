@@ -17,6 +17,7 @@
 
         <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
         <input id="inputProjectId" asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
+        <input id="currentUserId" hidden value="@UserManager.GetUserId(User)" />
         <div id="ticket-details-container">
 
             <section id="col-left">
@@ -71,7 +72,8 @@
                                     <td>@HelperFunctions.BytesToString(a.Size)</td>
                                     <td>@a.CreatedAt.ToString("d MMM yyyy hh:mm tt")</td>
                                     <td class="actions-td">
-                                        <form method="post" title="Delete" asp-action="DeleteAttachment" asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
+                                        <form method="post" title="Delete" asp-action="DeleteAttachment" asp-route-userId="@UserManager.GetUserId(User)"
+                                              asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
                                             <button type="submit" onclick="return confirm('Are you sure you want to remove this attachment?')" class="grid-btn"><i class="fas fa-trash"></i></button>
                                         </form>
                                         <a class="grid-btn" style="margin-left: 10px; padding: 11px 18px;" href="/Ticket/DownloadFile?attachmentId=@a.Id" title="Download"><i class="fas fa-cloud-download-alt"></i></a>
@@ -136,6 +138,7 @@
 
                                     @*Edit State*@
                                     <form method="post" asp-action="EditComment" id="commentEdit" style="display: none;"
+                                          asp-route-oldComment="@comment.Text"
                                           asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
                                         <input asp-for="Comment.UserId" hidden value="@u.Id" />
                                         <input asp-for="Comment.Id" hidden value="@comment.Id" />
@@ -242,17 +245,43 @@
                         <i id="timeline-icon" class="fas fa-chevron-up"></i>
                     </header>
                     <div id="ticket-timeline-body" class="">
-                        <div class="timeline-item">
-                            <div class="avatar" style="margin-right: 15px">M</div>
-                            <div>
-                                <div style="margin-bottom: 12px;">
-                                    <span><b>Marco</b> changed the <b>Priority</b></span> <span class="date">1 hour ago</span>
-                                </div>
+                        @foreach (var change in Model.HistoryChanges)
+                        {
+                            bool showBeforeAfter = (change.Before != null && change.After != null);
+                            string alignment = showBeforeAfter ? "" : "align-items: center";
+
+                            <div class="timeline-item" style="@alignment">
+                                <div class="avatar" style="margin-right: 15px">@change.User?.FullName.FirstOrDefault()</div>
+                                <div>
+                                    <div>
+                                        <span><b>@change.User?.FullName</b> @change.ActionType.Text <b>@change.ActionType.Type</b></span>
+                                        <span class="date">@change.Timestamp.ToString("d MMM yyyy, hh:mm tt")</span>
+                                    </div>
+                                    @if (change.ActionTypeId == WC.actionTypeStatus)
+                                    {
+                                        string beforeClass = HelperFunctions.GetStatusClassFromId(idString: change.Before);
+                                        string afterClass = HelperFunctions.GetStatusClassFromId(idString: change.After);
+
+                                        string beforeName = HelperFunctions.GetStatusNameFromId(idString: change.Before);
+                                        string afterName = HelperFunctions.GetStatusNameFromId(idString: change.After);
+
+                                        <div class="timeline-content">
+                                            <div class='@beforeClass status-tag' style="padding: 3px 5px 2px;">@beforeName</div>
+                                            <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
+                                            <div class='@afterClass status-tag' style="padding: 3px 5px 2px;">@afterName</div>
+                                        </div>
+                                    }
+                                    else @if (showBeforeAfter)
+                               {
                                 <div class="timeline-content">
-                                    High <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i> Medium
+                                    @change.Before.ToString()
+                                    <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
+                                    @change.After.ToString()
+                                </div>
+                            }
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </card>
 

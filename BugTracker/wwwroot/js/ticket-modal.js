@@ -52,6 +52,7 @@
         const userName = currentRow.find('td:eq(1)').text();
 
         placeholderElement.find('#userIdInput').val(userId);
+        placeholderElement.find('#userNameInput').val(userName);
         placeholderElement.find('#selectedUserName').text(userName);
     })
 
