@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
 
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
@@ -16,12 +17,18 @@
             {
                 AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
                 string fullName = user.FullName;
+                string avatarColor = HelperFunctions.GetAvatarColor(UserManager.GetUserId(User));
 
                 <li class="nav_item">Hi @fullName!</li>
                 <li class="nav_item">
                     <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                         <button id="logout" type="submit" class="nav-button">Logout</button>
                     </form>
+                </li>
+                <li class="nav_item">
+                    <a class="nav_link avatar" style="background-color: @avatarColor" id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                        @fullName.FirstOrDefault()
+                    </a>
                 </li>
             }
             else
@@ -33,10 +40,6 @@
                     <a class="nav_link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
                 </li>
             }
-
-            <div class="nav_item">
-                <a class="nav_link avatar" id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">M</a>
-            </div>
         </ul>
     </div>
 </nav>

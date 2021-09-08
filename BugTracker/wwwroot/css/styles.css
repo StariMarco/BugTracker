@@ -268,6 +268,21 @@ a {
         background-color: var(--color-label-bg);
     }
 
+.profile-btn {
+    background-color: #fff;
+    color: #42526E;
+    box-shadow: var(--card-shadow);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    padding: 11px;
+    width: 100%;
+    text-align: center;
+}
+
+    .profile-btn:hover {
+        background-color: #f4f4f4;
+    }
+
 /*Class to make the component impossible to select*/
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -369,8 +384,20 @@ a {
     margin-right: 8px;
 }
 
-/* Auth Pages */
+.avatar-profile {
+    background-color: var(--color-purple);
+    border-radius: 180px;
+    width: 75px;
+    height: 75px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row;
+    font-size: 35px;
+    color: #fff;
+}
 
+/* Auth Pages */
 .auth-container {
     background-color: var(--color-secondary-background);
     height: calc(100vh - var(--navbar-height));
@@ -415,6 +442,67 @@ a {
 
 .auth-container hr {
     margin: 20px 0;
+}
+
+/* Profile Page */
+.profile-container {
+    background-color: var(--color-secondary-background);
+    height: calc(100vh - var(--navbar-height));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding-top: 8%;
+}
+
+.profile-card {
+    background-color: var(--color-background);
+    padding: 35px 40px 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 450px;
+}
+
+    .profile-card header {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        margin-bottom: 35px;
+    }
+
+    .profile-card footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 40px;
+    }
+
+.profile-link {
+    color: var(--color-gray-text);
+}
+
+    .profile-link:hover {
+        text-decoration: underline;
+    }
+
+
+.profile-body .text-input {
+    width: 100%;
+    border: none;
+    color: var(--color-secondary-text);
+}
+
+    .profile-body .text-input:hover {
+        background-color: var(--color-input-background);
+        cursor: default;
+    }
+
+.profile-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: stretch;
+    align-items: center;
 }
 
 /* Inputs */

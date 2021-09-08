@@ -42,6 +42,7 @@
     <None Remove="Core\" />
     <None Remove="Views\Ticket\" />
     <None Remove="Views\Shared\EditTicketPage\" />
+    <None Remove="Views\Shared\EditTicketPage\Modals\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -55,11 +56,14 @@
     <Folder Include="wwwroot\assets\" />
     <Folder Include="wwwroot\assets\attachments\" />
     <Folder Include="Views\Shared\EditTicketPage\" />
+    <Folder Include="Views\Shared\EditTicketPage\Modals\" />
+    <Folder Include="wwwroot\js\editTicketPage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\css\" />
     <Content Remove="wwwroot\images\" />
     <Content Remove="wwwroot\assets\attachments\" />
     <Content Remove="wwwroot\assets\attachments\BugTracker.png" />
+    <Content Remove="wwwroot\js\editTicketPage\" />
   </ItemGroup>
 </Project>

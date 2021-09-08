@@ -1,12 +1,60 @@
-@inject SignInManager<IdentityUser> SignInManager
-@{ var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any(); }
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
-    @if (hasExternalLogins)
-    {
-<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>}
-    <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
-</ul>
+@*@inject SignInManager<AppUser> SignInManager
+    @using BugTracker.Models
+
+    @{ var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any(); }
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
+        @if (hasExternalLogins)
+        {
+    <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+    }
+        <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
+    </ul>*@
+
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
+@using BugTracker.Models
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<nav id="navbar" class="nav">
+    <div class="nav_content">
+        @*Logo*@
+        <a class="nav_logo nav_link" asp-area="" asp-controller="Home" asp-action="Index">
+            BugTracker
+        </a>
+
+        @*Auth + Profile*@
+        <ul class="nav_list">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
+                string fullName = user.FullName;
+                string avatarColor = HelperFunctions.GetAvatarColor(UserManager.GetUserId(User));
+
+<li class="nav_item">Hi @fullName!</li>
+                <li class="nav_item">
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button id="logout" type="submit" class="nav-button">Logout</button>
+                    </form>
+                </li>
+                                <li class="nav_item">
+                                    <a class="nav_link avatar" style="background-color: @avatarColor" id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                                        @fullName.FirstOrDefault()
+                                    </a>
+                                </li> }
+                                            else
+                                            {
+                                <li class="nav_item">
+                                    <a class="nav_link" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                                </li>
+                                                <li class="nav_item">
+                                                    <a class="nav_link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                                                </li>}
+        </ul>
+    </div>
+</nav>

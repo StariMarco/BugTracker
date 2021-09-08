@@ -63,5 +63,14 @@ namespace BugTracker
         public const int actionTypeEditComment = 9;
         public const int actionTypeDeleteAttachment = 10;
         public const int actionTypeDeleteComment = 11;
+
+        public static Dictionary<int, string> AvatarColorMap = new Dictionary<int, string>
+        {
+             {0, "#5343AA" },
+             {1, "#43A4E2" },
+             {2, "#FFA329" },
+             {3, "#107B51" },
+             {4, "#1B55C5" },
+        };
     }
 }

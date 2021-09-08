@@ -1,26 +1,29 @@
-﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout))
+﻿@using Microsoft.AspNetCore.Identity
+@using BugTracker.Models
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{ if (ViewData.TryGetValue("ParentLayout", out var parentLayout))
     {
         Layout = (string)parentLayout;
     }
     else
     {
         Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
-}
-
-<h2>Manage your account</h2>
+    } }
 
 <div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
-        </div>
-        <div class="col-md-9">
-            @RenderBody()
-        </div>
+    <partial name="_ManageNav" />
+    <div>
+        @if (!SignInManager.IsSignedIn(User))
+        {
+<section class="profile-container">
+    <h2>You are not signed in</h2>
+</section> }
+else
+{
+@RenderBody()}
     </div>
 </div>
 

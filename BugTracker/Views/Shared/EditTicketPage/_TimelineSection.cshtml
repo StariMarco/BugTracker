@@ -1,0 +1,54 @@
+﻿@model BugTracker.Models.ViewModels.EditTicketVM;
+
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
+
+@inject UserManager<AppUser> UserManager
+@inject SignInManager<AppUser> SignInManager
+
+<card class="ticket-info-card">
+    <header id="timeline-header" class="header-title">
+        <h6>Timeline</h6>
+        <i id="timeline-icon" class="fas fa-chevron-up"></i>
+    </header>
+    <div id="ticket-timeline-body" class="">
+        @foreach (var change in Model.HistoryChanges)
+        {
+            bool showBeforeAfter = (change.Before != null && change.After != null);
+            string alignment = showBeforeAfter ? "" : "align-items: center";
+            string changeAvatarColor = HelperFunctions.GetAvatarColor(change.UserId);
+
+            <div class="timeline-item" style="@alignment">
+                <div class="avatar" style="margin-right: 15px; background-color: @changeAvatarColor">@change.User?.FullName.FirstOrDefault()</div>
+                <div>
+                    <div>
+                        <span><b>@change.User?.FullName</b> @change.ActionType.Text <b>@change.ActionType.Type</b></span>
+                        <span class="date">@change.Timestamp.ToString("d MMM yyyy, hh:mm tt")</span>
+                    </div>
+                    @if (change.ActionTypeId == WC.actionTypeStatus)
+                    {
+                        string beforeClass = HelperFunctions.GetStatusClassFromId(idString: change.Before);
+                        string afterClass = HelperFunctions.GetStatusClassFromId(idString: change.After);
+
+                        string beforeName = HelperFunctions.GetStatusNameFromId(idString: change.Before);
+                        string afterName = HelperFunctions.GetStatusNameFromId(idString: change.After);
+
+                        <div class="timeline-content">
+                            <div class='@beforeClass status-tag' style="padding: 3px 5px 2px;">@beforeName</div>
+                            <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
+                            <div class='@afterClass status-tag' style="padding: 3px 5px 2px;">@afterName</div>
+                        </div>
+                    }
+                    else @if (showBeforeAfter)
+               {
+                <div class="timeline-content">
+                    @change.Before.ToString()
+                    <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
+                    @change.After.ToString()
+                </div>
+            }
+                </div>
+            </div>
+        }
+    </div>
+</card>

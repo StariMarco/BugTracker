@@ -1,29 +1,37 @@
 @page
 @model IndexModel
-@{
-    ViewData["Title"] = "Profile";
-    ViewData["ActivePage"] = ManageNavPages.Index;
-}
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Models
+@using BugTracker.Core
 
-<h4>@ViewData["Title"]</h4>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username"></label>
-                <input asp-for="Username" class="form-control" disabled />
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{ ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index; }
+
+@{ AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
+    string fullName = user.FullName;
+    string avatarColor = HelperFunctions.GetAvatarColor(UserManager.GetUserId(User));
+
+<section class="profile-container">
+    <card class="profile-card">
+        <header>
+            <div class="avatar-profile" style="background-color: @avatarColor">@fullName.FirstOrDefault()</div>
+            <h1 style="margin-top: 12px;">@fullName</h1>
+        </header>
+        <section class="profile-body">
+            <input class="text-input" placeholder="Email address" readonly value="@user.Email" />
+            <div class="profile-buttons">
+                <a class="profile-btn" id="change-password" asp-page="./ChangePassword">Change Password</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.PhoneNumber"></label>
-                <input asp-for="Input.PhoneNumber" class="form-control" />
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
-        </form>
-    </div>
-</div>
+        </section>
+        <footer>
+            <a asp-controller="Home" asp-action="Index" class="profile-link">Back to Projects</a>
+        </footer>
+    </card>
+</section>}
+@*<a class="profile-btn" style="margin-right: 15px;" id="email" asp-page="./Email">Change Email</a>*@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

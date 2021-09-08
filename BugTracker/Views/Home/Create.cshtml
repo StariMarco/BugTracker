@@ -1,6 +1,7 @@
 ﻿@model BugTracker.Models.Project;
 
 @using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
 
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
@@ -31,10 +32,11 @@
             @{
                 string creatorId = UserManager.GetUserId(User);
                 AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == creatorId);
+                string avatarColor = HelperFunctions.GetAvatarColor(creatorId);
 
                 <label>Project Creator</label>
                 <div class="fake-input">
-                    <a class="avatar-input" style="margin-right: 8px;">@user.FullName.FirstOrDefault()</a>
+                    <a class="avatar-input" style="background-color: @avatarColor; margin-right: 8px;">@user.FullName.FirstOrDefault()</a>
                     @user.FullName - @user.Email
                 </div>
                 <input asp-for="CreatorId" hidden value="@creatorId" />

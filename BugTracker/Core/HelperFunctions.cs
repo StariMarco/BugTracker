@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -136,6 +138,22 @@ namespace BugTracker.Core
             string fileToDelete = Path.Combine(uploadFolder, filename);
 
             if (File.Exists(fileToDelete)) File.Delete(fileToDelete);
+        }
+
+        public static string GetAvatarColor(string value)
+        {
+            string color = "#5343AA";
+            int number = 0;
+
+            if (string.IsNullOrEmpty(value)) return color;
+
+            using (MD5 md5 = MD5.Create())
+            {
+                var hashed = md5.ComputeHash(Encoding.UTF8.GetBytes(value));
+                number = Math.Abs(BitConverter.ToInt32(hashed, 0)) % WC.AvatarColorMap.Count();
+            }
+
+            return WC.AvatarColorMap[number];
         }
     }
 }

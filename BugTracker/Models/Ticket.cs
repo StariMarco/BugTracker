@@ -88,5 +88,10 @@ namespace BugTracker.Models
 
             return result;
         }
+
+        public String ClosedAtToString(string format)
+        {
+            return ClosedAt == null ? "" : ((DateTime)ClosedAt).ToString(format);
+        }
     }
 }

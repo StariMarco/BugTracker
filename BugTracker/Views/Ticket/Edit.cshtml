@@ -41,249 +41,20 @@
                 </div>
 
                 @*Attachments*@
-                <div class="ticket-section">
-                    <form id="attachmentsForm" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;"
-                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-userId="@UserManager.GetUserId(User)" asp-action="UploadFile">
-                        <h6 style="margin: 0;">Attachments</h6>
-                        <label for="upload" id="upload-btn">
-                            <i class="fas fa-plus"></i>
-                        </label>
-                        <input id="upload" name="upload" type="file" hidden />
-                    </form>
-                    <table id="tblAttachments">
-                        <tr class="header-row">
-                            <th>Name</th>
-                            <th>Size</th>
-                            <th>Date added</th>
-                            <th></th>
-                        </tr>
-                        @if (Model.Attachments.Count() == 0)
-                        {
-                            <tr class="empty-row">
-                                <td>No records to display</td>
-                            </tr>
-                        }
-                        else
-                        {
-                            @foreach (var a in Model.Attachments)
-                            {
-                                <tr>
-                                    <td>@a.File</td>
-                                    <td>@HelperFunctions.BytesToString(a.Size)</td>
-                                    <td>@a.CreatedAt.ToString("d MMM yyyy hh:mm tt")</td>
-                                    <td class="actions-td">
-                                        <form method="post" title="Delete" asp-action="DeleteAttachment" asp-route-userId="@UserManager.GetUserId(User)"
-                                              asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this attachment?')" class="grid-btn"><i class="fas fa-trash"></i></button>
-                                        </form>
-                                        <a class="grid-btn" style="margin-left: 10px; padding: 11px 18px;" href="/Ticket/DownloadFile?attachmentId=@a.Id" title="Download"><i class="fas fa-cloud-download-alt"></i></a>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </table>
-                </div>
+                <partial name="EditTicketPage/_AttachmentsSection" />
 
                 @*Comments*@
-                <div class="ticket-section">
-                    <h6>Comments</h6>
-                    <form method="post" style="align-items: start;" asp-action="AddComment"
-                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
-                        @{
-                            AppUser user = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
-                            <input asp-for="Comment.UserId" hidden value="@user.Id" />
-                            <div style="width: 34px;">
-                                <div class="avatar">@user.FullName.FirstOrDefault()</div>
-                            </div>
-                            <div style="width: 100%; margin-left: 20px;">
-                                <input asp-for="Comment.Text" class="input-comment" style="margin-bottom: 3px;" placeholder="Add a comment..." />
-                                <span asp-validation-for="Comment.Text" class="text-error"></span>
-                            </div>
-                            <button type="submit" style="padding: 9px 18px; margin-left: 20px;">Add</button>
-                        }
-                    </form>
+                <partial name="EditTicketPage/_CommentsSection" />
 
-                    @{
-                        AppUser u = UserManager.Users.FirstOrDefault(u => u.Id == UserManager.GetUserId(User));
-                        @foreach (var comment in Model.Comments)
-                        {
-                            string articleId = "comment-" + comment.Id.ToString();
-                            <article id="@articleId" class="comment-container">
-                                <div style="width: 34px;">
-                                    <div class="avatar">@comment.User.FullName.FirstOrDefault()</div>
-                                </div>
-                                <div class="comment-body">
-                                    <header>
-                                        <b style="margin-right: 15px;">@comment.User.FullName</b>
-                                        <span>@comment.CreatedAt.ToString("d MMM yyyy, hh:mm tt")</span>
-                                    </header>
-
-                                    @*Default State*@
-                                    <div id="commentDefault">
-                                        <p>@comment.Text</p>
-                                        <footer class="comment-actions">
-                                            <section>
-                                                @if (u.Id == comment.UserId)
-                                                {
-                                                    <a id="commentEditBtn" onclick="return showEditComment('@articleId')">Edit</a>
-                                                    <span style="margin: 0 12px;">•</span>
-                                                    <form method="post" asp-action="DeleteComment" asp-route-commentId="@comment.Id"
-                                                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
-                                                        <button type="submit" class="btn-link" onclick="return confirm('Are you sure you want to remove this comment?')" id="commentCancelBtn">Delete</button>
-                                                    </form>
-                                                }
-                                            </section>
-                                        </footer>
-                                    </div>
-
-                                    @*Edit State*@
-                                    <form method="post" asp-action="EditComment" id="commentEdit" style="display: none;"
-                                          asp-route-oldComment="@comment.Text"
-                                          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id">
-                                        <input asp-for="Comment.UserId" hidden value="@u.Id" />
-                                        <input asp-for="Comment.Id" hidden value="@comment.Id" />
-                                        <input type="datetime" asp-for="Comment.CreatedAt" hidden value="@comment.CreatedAt" />
-                                        <div style="width: 100%; margin: 10px 0;">
-                                            <input asp-for="Comment.Text" value="@comment.Text" class="input-comment" style="margin-bottom: 3px;" placeholder="Add a comment..." />
-                                            <span asp-validation-for="Comment.Text" class="text-error"></span>
-                                        </div>
-                                        <footer class="comment-actions">
-                                            <section>
-                                                <button type="submit" style="padding: 8px 11px; margin-right: 15px;">Save</button>
-                                                <a id="commentCancelBtn" onclick="return showDefaultComment('@articleId')" style="margin: auto 0;">Cancel</a>
-                                            </section>
-                                        </footer>
-                                    </form>
-                                </div>
-                            </article>
-                        }
-                    }
-
-
-                </div>
             </section>
 
             <section id="col-right">
 
                 @*Details*@
-                <card class="ticket-info-card">
-                    <header id="detail-header" class="header-title">
-                        <h6>Details</h6>
-                        <i id="detail-icon" class="fas fa-chevron-up"></i>
-                    </header>
-                    <div id="ticket-detail-body" class="">
-                        <span>Reporter</span>
-                        <div class="detail-value">
-                            <input id="inputReporter" asp-for="Ticket.ReporterId" hidden value="@Model.Ticket.ReporterId" />
-                            <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reporter.FullName.FirstOrDefault()</div>
-                            @Model.Ticket.Reporter.FullName
-                        </div>
-                        <span>Developer</span>
-                        <div class="detail-value">
-                            <input id="inputDeveloper" asp-for="Ticket.DeveloperId" hidden value="@Model.Ticket.DeveloperId" />
-                            <button type="button" class="btn-select-user"
-                                    data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
-                                @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
-                                {
-                                    <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
-                                    @Model.Ticket.Developer?.FullName
-                                }
-                                else
-                                {
-                                    <div>Select user</div>
-                                }
-                            </button>
-                        </div>
-                        <span>Reviewer</span>
-                        <div class="detail-value">
-                            <input id="inputReviewer" asp-for="Ticket.ReviewerId" hidden value="@Model.Ticket.ReviewerId" />
-                            @if (@Model.Ticket.Reviewer != null && !string.IsNullOrEmpty(@Model.Ticket.Reviewer.FullName))
-                            {
-                                <div class="avatar-small" style="margin-right: 10px;">@Model.Ticket.Reviewer?.FullName.FirstOrDefault()</div>
-                                @Model.Ticket.Reviewer?.FullName
-                            }
-                        </div>
-                        <span>Status</span>
-                        <div style="display: flex; justify-content: start; align-items: center">
-                            <input id="inputStatus" asp-for="Ticket.StatusId" hidden value="@Model.Ticket.StatusId" />
-                            <button type="button" class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value"
-                                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?id=@Model.Ticket.Id">
-                                @Model.Ticket.Status.Name
-                                <i class="fas fa-chevron-down" style="margin-left: 6px;"></i>
-                            </button>
-                        </div>
-                        <span>Priority</span>
-                        <div class="detail-value">
-                            <select id="inputPriority" style="width: 100%" class="text-input-ticket" asp-for="Ticket.PriorityId" asp-items="@Model.Priorities"></select>
-                            <span asp-validation-for="Ticket.PriorityId" class="text-error"></span>
-                        </div>
-                        <span>Type</span>
-                        <div class="detail-value">
-                            <select id="inputType" style="width: 100%" class="text-input-ticket" asp-for="Ticket.TypeId" asp-items="@Model.Types"></select>
-                            <span asp-validation-for="Ticket.TypeId" class="text-error"></span>
-                        </div>
-                        <span>Created</span>
-                        <div class="detail-value">
-                            <input id="inputCreatedAt" type="datetime" asp-for="Ticket.CreatedAt" hidden value="@Model.Ticket.CreatedAt" />
-                            @Model.Ticket.CreatedAt.ToString("d MMMM yyyy")
-                        </div>
-                        <span>Closed</span>
-                        <div class="detail-value">
-                            <input id="inputClosedAt" type="datetime" asp-for="Ticket.ClosedAt" hidden value="@Model.Ticket.ClosedAt" />
-                            @if (@Model.Ticket.ClosedAt != null)
-                            {
-                                ((DateTime)@Model.Ticket.ClosedAt).ToString("d MMMM yyyy");
-                            }
-                        </div>
-                    </div>
-                </card>
+                <partial name="EditTicketPage/_DetailsSection" />
 
                 @*Timeline*@
-                <card class="ticket-info-card">
-                    <header id="timeline-header" class="header-title">
-                        <h6>Timeline</h6>
-                        <i id="timeline-icon" class="fas fa-chevron-up"></i>
-                    </header>
-                    <div id="ticket-timeline-body" class="">
-                        @foreach (var change in Model.HistoryChanges)
-                        {
-                            bool showBeforeAfter = (change.Before != null && change.After != null);
-                            string alignment = showBeforeAfter ? "" : "align-items: center";
-
-                            <div class="timeline-item" style="@alignment">
-                                <div class="avatar" style="margin-right: 15px">@change.User?.FullName.FirstOrDefault()</div>
-                                <div>
-                                    <div>
-                                        <span><b>@change.User?.FullName</b> @change.ActionType.Text <b>@change.ActionType.Type</b></span>
-                                        <span class="date">@change.Timestamp.ToString("d MMM yyyy, hh:mm tt")</span>
-                                    </div>
-                                    @if (change.ActionTypeId == WC.actionTypeStatus)
-                                    {
-                                        string beforeClass = HelperFunctions.GetStatusClassFromId(idString: change.Before);
-                                        string afterClass = HelperFunctions.GetStatusClassFromId(idString: change.After);
-
-                                        string beforeName = HelperFunctions.GetStatusNameFromId(idString: change.Before);
-                                        string afterName = HelperFunctions.GetStatusNameFromId(idString: change.After);
-
-                                        <div class="timeline-content">
-                                            <div class='@beforeClass status-tag' style="padding: 3px 5px 2px;">@beforeName</div>
-                                            <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
-                                            <div class='@afterClass status-tag' style="padding: 3px 5px 2px;">@afterName</div>
-                                        </div>
-                                    }
-                                    else @if (showBeforeAfter)
-                               {
-                                <div class="timeline-content">
-                                    @change.Before.ToString()
-                                    <i class="fas fa-long-arrow-alt-right" style="margin: 0 15px;"></i>
-                                    @change.After.ToString()
-                                </div>
-                            }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </card>
+                <partial name="EditTicketPage/_TimelineSection" />
 
                 <section class="danger-zone-container">
                     <div class="danger-zone-item">
@@ -310,10 +81,10 @@
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
 
-    <script src="@Url.Content("~/js/ticket-details-page.js")"></script>
-    <script src="@Url.Content("~/js/ticket-modal.js")"></script>
-    <script src="@Url.Content("~/js/get-ticket-data.js")"></script>
-    <script src="@Url.Content("~/js/ticket-comments.js")"></script>
+    <script src="@Url.Content("~/js/editTicketPage/ticket-details-page.js")"></script>
+    <script src="@Url.Content("~/js/editTicketPage/ticket-modal.js")"></script>
+    <script src="@Url.Content("~/js/editTicketPage/get-ticket-data.js")"></script>
+    <script src="@Url.Content("~/js/editTicketPage/ticket-comments.js")"></script>
 
     <script type="text/javascript">
         function getToken() {

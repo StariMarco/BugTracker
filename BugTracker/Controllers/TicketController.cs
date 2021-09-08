@@ -317,7 +317,7 @@ namespace BugTracker.Controllers
                 Ticket = ticket
             };
 
-            return PartialView("EditTicketPage/_ChageTicketStatusModal", changeTicketStatusVM);
+            return PartialView("EditTicketPage/Modals/_ChageTicketStatusModal", changeTicketStatusVM);
         }
 
         [HttpPost]
@@ -340,6 +340,10 @@ namespace BugTracker.Controllers
 
             // Change the ticket status
             ticket.StatusId = status.Id;
+
+            // If the new status is "done" => add closedAt
+            if (status.Id == WC.StatusDone) ticket.ClosedAt = DateTime.Now;
+            else ticket.ClosedAt = null;
 
             // Create the history record
             HistoryChange change = new HistoryChange
@@ -531,6 +535,11 @@ namespace BugTracker.Controllers
         {
             comment.TicketId = ticketId;
 
+            if (comment.Text.Trim() == oldComment.Trim())
+            {
+                return RedirectToAction(nameof(Edit), new { projectId, ticketId });
+            }
+
             // Create the ticket history record
             HistoryChange change = new HistoryChange
             {
@@ -605,7 +614,7 @@ namespace BugTracker.Controllers
                 TicketId = ticketId
             };
 
-            return PartialView("EditTicketPage/_ChangeTicketDeveloperModal", changeDeveloperVM);
+            return PartialView("EditTicketPage/Modals/_ChangeTicketDeveloperModal", changeDeveloperVM);
         }
 
         [HttpPost]
