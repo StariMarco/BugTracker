@@ -9,5 +9,6 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<AppUser> Users { get; set; }
         public UserProject UserProject { get; set; }
         public IEnumerable<SelectListItem> ProjectRoles { get; set; }
+        public bool CanAddUser { get; set; }
     }
 }

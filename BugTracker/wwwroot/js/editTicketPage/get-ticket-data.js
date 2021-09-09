@@ -16,6 +16,8 @@
     const priorityId = document.getElementById("inputPriority").value;
     const typeId = document.getElementById("inputType").value;
 
+    const canEditTicket = document.getElementById("canEditTicket").value;
+
     return {
         id: ticketId,
         title: title,
@@ -29,6 +31,7 @@
         statusId: statusId,
         priorityId: priorityId,
         typeId: typeId,
-        currentUserId: currentUserId
+        currentUserId: currentUserId,
+        canEditTicket: canEditTicket
     };
 }

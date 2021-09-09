@@ -8,5 +8,6 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<UserProject> Users { get; set; }
         public AppUser SelectedUser { get; set; }
         public int TicketId { get; set; }
+        public bool CanEditDev { get; set; }
     }
 }

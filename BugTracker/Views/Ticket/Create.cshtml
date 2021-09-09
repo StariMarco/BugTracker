@@ -8,7 +8,7 @@
 <div class="project-main">
     <partial name="_SideNav" model="@Model.Project" />
     <div class="project-body">
-        <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+        <a asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
         <h1 style="margin-bottom: 25px;">Create new ticket</h1>
 
         <form method="post" asp-action="Create">
@@ -44,10 +44,11 @@
                 <span asp-validation-for="Ticket.Description" class="text-error"></span>
             </div>
 
+            <input hidden id="canCreateTicket" name="canCreateTicket" value="@Model.CanCreateTicket.ToString()" />
             @*Buttons*@
             <div style="display: flex; flex-direction: row;">
                 <button type="submit" style="margin-right: 10px;">Create</button>
-                <a type="button" class="btn-secondary" asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id">Cancel</a>
+                <a type="button" class="btn-secondary" asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Project.Id">Cancel</a>
             </div>
         </form>
     </div>

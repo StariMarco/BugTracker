@@ -6,77 +6,90 @@
 @inject UserManager<AppUser> UserManager
 @inject SignInManager<AppUser> SignInManager
 
-<div class="project-main">
-    <partial name="_SideNav" model="@Model.Project" />
-    <div class="project-body">
-        <div id="modalPlaceholder"></div>
+@{
+    string disabledClass = Model.CanEditTicket ? "" : "disabled";
+    string descPlaceholder = Model.CanEditTicket ? "Write a description for the project..." : null;
+    string descClass = (!Model.CanEditTicket && string.IsNullOrEmpty(Model.Ticket.Description)) ? "hidden" : "";
 
-        <div style="max-width: 25%;">
-            <a asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
-        </div>
+    <div class="project-main">
+        <partial name="_SideNav" model="@Model.Project" />
+        <div class="project-body">
+            <div id="modalPlaceholder"></div>
 
-        <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
-        <input id="inputProjectId" asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
-        <input id="currentUserId" hidden value="@UserManager.GetUserId(User)" />
-        <div id="ticket-details-container">
+            <div style="max-width: 25%;">
+                <a asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+            </div>
 
-            <section id="col-left">
-                @*Title*@
-                <header class="ticket-header">
-                    <div style="width: 100%;">
-                        @*TODO: Make this a textarea*@
-                        <input id="inputTitle" asp-for="Ticket.Title" class="text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title" />
-                        @*<textarea asp-for="Ticket.Title" type="text" id="titleText"
-                            class="auto-resize-textarea text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title"></textarea>*@
-                        <span asp-validation-for="Ticket.Title" class="text-error"></span>
+            <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
+            <input id="inputProjectId" asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
+            <input id="currentUserId" hidden value="@UserManager.GetUserId(User)" />
+            <input id="canEditTicket" hidden value="@Model.CanEditTicket" />
+            <div id="ticket-details-container">
+
+                <section id="col-left">
+                    @*Title*@
+                    <header class="ticket-header">
+                        <div style="width: 100%;">
+                            @*TODO: Make this a textarea*@
+                            <input id="inputTitle" asp-for="Ticket.Title" class="@disabledClass text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title" />
+                            @*<textarea asp-for="Ticket.Title" type="text" id="titleText"
+                                class="auto-resize-textarea text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title"></textarea>*@
+                            <span asp-validation-for="Ticket.Title" class="text-error"></span>
+                        </div>
+                        @if (Model.CanEditTicket)
+                        {
+                            <button id="saveBtn" type="button" class="save-changes-button">Save Changes</button>
+                        }
+                    </header>
+
+                    @*Description*@
+                    <div class="@descClass ticket-section">
+                        <h6 style="margin-bottom: 8px;">Description</h6>
+                        <textarea rows="12" id="inputDescription" asp-for="Ticket.Description" class="@disabledClass text-input-ticket" placeholder="@descPlaceholder"></textarea>
+                        <span asp-validation-for="Ticket.Description" class="text-error"></span>
                     </div>
-                    <button id="saveBtn" type="button" class="save-changes-button">Save Changes</button>
-                </header>
 
-                @*Description*@
-                <div class="ticket-section">
-                    <h6 style="margin-bottom: 8px;">Description</h6>
-                    <textarea rows="12" id="inputDescription" asp-for="Ticket.Description" class="text-input-ticket" placeholder="Write a description for the project..."></textarea>
-                    <span asp-validation-for="Ticket.Description" class="text-error"></span>
-                </div>
+                    @*Attachments*@
+                    <partial name="EditTicketPage/_AttachmentsSection" />
 
-                @*Attachments*@
-                <partial name="EditTicketPage/_AttachmentsSection" />
+                    @*Comments*@
+                    <partial name="EditTicketPage/_CommentsSection" />
 
-                @*Comments*@
-                <partial name="EditTicketPage/_CommentsSection" />
-
-            </section>
-
-            <section id="col-right">
-
-                @*Details*@
-                <partial name="EditTicketPage/_DetailsSection" />
-
-                @*Timeline*@
-                <partial name="EditTicketPage/_TimelineSection" />
-
-                <section class="danger-zone-container">
-                    <div class="danger-zone-item">
-                        <p>
-                            <b>Delete this ticket</b><br />
-                            Once you delete a ticket, there is no going back. Please be certain.
-                        </p>
-                        <form method="post" asp-action="DeleteTicket"
-                              asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id">
-                            <button type="submit" style="white-space: nowrap;"
-                                    onclick="return confirm('Are you sure you want to remove this ticket?')">
-                                Delete ticket
-                            </button>
-                        </form>
-                    </div>
                 </section>
 
-            </section>
+                <section id="col-right">
+
+                    @*Details*@
+                    <partial name="EditTicketPage/_DetailsSection" />
+
+                    @*Timeline*@
+                    <partial name="EditTicketPage/_TimelineSection" />
+
+                    @if (Model.CanEditTicket)
+                    {
+                        <section class="danger-zone-container">
+                            <div class="danger-zone-item">
+                                <p>
+                                    <b>Delete this ticket</b><br />
+                                    Once you delete a ticket, there is no going back. Please be certain.
+                                </p>
+                                <form method="post" asp-action="DeleteTicket"
+                                      asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id">
+                                    <input hidden id="canDeleteTicket" name="canDeleteTicket" value="@Model.CanEditTicket.ToString()" />
+                                    <button type="submit" style="white-space: nowrap;"
+                                            onclick="return confirm('Are you sure you want to remove this ticket?')">
+                                        Delete ticket
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    }
+
+                </section>
+            </div>
         </div>
     </div>
-</div>
-
+}
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />

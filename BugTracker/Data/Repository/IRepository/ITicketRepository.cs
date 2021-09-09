@@ -13,6 +13,7 @@ namespace BugTracker.Data.Repository.IRepository
         void RemoveTicket(IWebHostEnvironment web, Ticket obj);
 
         public IEnumerable<SelectListItem> GetAllStatuses();
+        public IEnumerable<SelectListItem> GetAllAllowedStatuses(int userRole, bool isAdmin = false);
         public IEnumerable<SelectListItem> GetAllTypes();
         public IEnumerable<SelectListItem> GetAllPriorities();
         public IEnumerable<TicketAttachment> GetAllAttachments(int ticketId);

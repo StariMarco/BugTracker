@@ -1,5 +1,11 @@
 ﻿@model BugTracker.Models.Project;
 
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Core
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
 <div class="sidenav">
     <div class="sidenav-content">
         <section class="project-info-section" style="margin-bottom: 24px">
@@ -18,15 +24,18 @@
         </section>
         <hr />
         <div class="sidenav-button-section" style="margin-top: 10px;">
-            <a class="btn-sidenav" asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Id">
-                <i class="fas fa-pager"></i>Tickets
-            </a>
-            <a class="btn-sidenav" asp-controller="Project" asp-action="Users" asp-route-id="@Model.Id">
-                <i class="fas fa-user-friends"></i>Manage Users
-            </a>
-            <a class="btn-sidenav" asp-controller="Project" asp-action="Settings" asp-route-id="@Model.Id">
-                <i class="fas fa-cog"></i>Project Settings
-            </a>
+            @{
+                string userId = UserManager.GetUserId(User);
+                <a class="btn-sidenav" asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Id">
+                    <i class="fas fa-pager"></i>Tickets
+                </a>
+                <a class="btn-sidenav" asp-controller="Project" asp-action="Users" asp-route-projectId="@Model.Id">
+                    <i class="fas fa-user-friends"></i>Manage Users
+                </a>
+                <a class="btn-sidenav" asp-controller="Project" asp-action="Settings" asp-route-projectId="@Model.Id">
+                    <i class="fas fa-cog"></i>Project Settings
+                </a>
+            }
         </div>
         <hr />
         <div class="sidenav-button-section" style="margin-top: 10px;">

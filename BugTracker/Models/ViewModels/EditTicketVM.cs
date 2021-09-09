@@ -14,5 +14,7 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<TicketComment> Comments { get; set; }
         public TicketComment Comment { get; set; }
         public IEnumerable<HistoryChange> HistoryChanges { get; set; }
+        public bool CanEditTicket { get; set; }
+        public bool CanEditDev { get; set; }
     }
 }

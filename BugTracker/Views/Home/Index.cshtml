@@ -1,4 +1,4 @@
-﻿@model List<BugTracker.Models.Project>
+﻿@model List<BugTracker.Models.UserProject>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -14,13 +14,15 @@
             @{
                 foreach (var obj in Model)
                 {
-                    <a id="@obj.Id" style="color: #162643" asp-controller="Ticket" asp-action="Index" asp-route-id="@obj.Id">
+                    var project = obj.Project;
+                    <a id="@obj.UserId + @obj.ProjectId" style="color: #162643" asp-controller="Ticket" asp-action="Index"
+                       asp-route-projectId="@obj.ProjectId">
                         <card class="card project-card">
                             <div class="project-info">
-                                <h2>@obj.Title</h2>
-                                <h4>@obj.Type</h4>
+                                <h2>@project.Title</h2>
+                                <h4>@project.Type</h4>
                             </div>
-                            <h5 style="text-align: right;">@obj.CreatedAt.ToShortDateString()</h5>
+                            <h5 style="text-align: right;">@project.CreatedAt.ToShortDateString()</h5>
                         </card>
                     </a>
                 }

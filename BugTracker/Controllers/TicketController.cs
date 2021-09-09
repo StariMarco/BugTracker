@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Core;
@@ -9,7 +10,9 @@ using BugTracker.Data;
 using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,36 +21,47 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class TicketController : Controller
     {
         private readonly ApplicationDbContext _db;
         private readonly IProjectRepository _projectRepo;
         private readonly ITicketRepository _ticketRepo;
+        private readonly IUserProjectRepository _userProjectRepo;
         private readonly INotyfService _notyf;
         private readonly IWebHostEnvironment _web;
+        private readonly UserManager<AppUser> _userManager;
 
-        public TicketController(ApplicationDbContext db, IProjectRepository projectRepo, ITicketRepository ticketRepo, INotyfService notyf, IWebHostEnvironment web)
+        public TicketController(ApplicationDbContext db, IProjectRepository projectRepo, ITicketRepository ticketRepo,
+            IUserProjectRepository userProjectRepo, INotyfService notyf, IWebHostEnvironment web, UserManager<AppUser> userManager)
         {
             _db = db;
             _projectRepo = projectRepo;
             _ticketRepo = ticketRepo;
+            _userProjectRepo = userProjectRepo;
             _notyf = notyf;
             _web = web;
+            _userManager = userManager;
         }
 
         #region Tickets Index + Create + Delete Actions
 
-        public IActionResult Index(int id, string userfilter = null, int? statusfilter = null, int? typefilter = null,
+        public IActionResult Index(int projectId, string userfilter = null, int? statusfilter = null, int? typefilter = null,
             string messageType = null, string message = null)
         {
             // Manage toasts
             if (messageType != null)
             {
                 HelperFunctions.ManageToastMessages(_notyf, messageType, message);
-                return RedirectToAction(nameof(Index), new { id = id, userfilter, statusfilter });
+                return RedirectToAction(nameof(Index), new { projectId = projectId, userfilter, statusfilter });
             }
 
-            Project project = _projectRepo.Find(id);
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId);
+
+            Project project = userProject.Project;
             IEnumerable<Ticket> tickets = _ticketRepo.GetAll(t => t.ProjectId == project.Id, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type", orderBy: (q) => q.OrderByDescending(t => t.CreatedAt));
             IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
@@ -60,7 +74,9 @@ namespace BugTracker.Controllers
                 Project = project,
                 Tickets = tickets,
                 Statuses = statuses,
-                Types = types
+                Types = types,
+                // Can edit if admin, project manager or reporter
+                CanCreateTicket = isAdmin || userProject.ProjectRoleId == WC.ProjectManagerId || userProject.ProjectRoleId == WC.ReporterId
             };
 
             return View(ticketIndexVM);
@@ -68,7 +84,12 @@ namespace BugTracker.Controllers
 
         public IActionResult Create(int id)
         {
-            Project project = _projectRepo.Find(id);
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, id, userId);
+
+            Project project = userProject.Project;
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
             IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
 
@@ -77,7 +98,9 @@ namespace BugTracker.Controllers
                 Project = project,
                 Ticket = new Ticket(),
                 Types = types,
-                Priorities = priorities
+                Priorities = priorities,
+                // Can edit if admin, project manager or reporter
+                CanCreateTicket = isAdmin || userProject.ProjectRoleId == WC.ProjectManagerId || userProject.ProjectRoleId == WC.ReporterId
             };
 
             return View(createTicketVM);
@@ -91,9 +114,11 @@ namespace BugTracker.Controllers
             ticket.CreatedAt = DateTime.Now;
             ticket.StatusId = WC.StatusToDo;
 
-
             try
             {
+                bool canCreateTicket = bool.Parse(Request.Form["canCreateTicket"]);
+                if (!canCreateTicket) throw new UnauthorizedAccessException();
+
                 _db.Tickets.Add(ticket);
                 _db.SaveChanges();
 
@@ -114,12 +139,17 @@ namespace BugTracker.Controllers
                 string message = "The ticket was created successfully";
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
+            catch (UnauthorizedAccessException)
+            {
+                string message = "You do not have the permission to create a ticket";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
+            }
             catch (Exception)
             {
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Index), new { id = ticket.ProjectId });
+            return RedirectToAction(nameof(Index), new { projectId = ticket.ProjectId });
         }
 
         [HttpPost]
@@ -129,6 +159,9 @@ namespace BugTracker.Controllers
         {
             try
             {
+                bool canDeleteTicket = bool.Parse(Request.Form["canDeleteTicket"]);
+                if (!canDeleteTicket) throw new UnauthorizedAccessException();
+
                 Ticket ticket = _ticketRepo.Find(ticketId);
 
                 // Delete the ticket
@@ -139,13 +172,18 @@ namespace BugTracker.Controllers
                 string message = "Ticket deleted successfully";
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
+            catch (UnauthorizedAccessException)
+            {
+                string message = "You are not allowed to delete a ticket";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
+            }
             catch (Exception)
             {
                 // Error
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Index), new { id = projectId });
+            return RedirectToAction(nameof(Index), new { projectId = projectId });
         }
 
         #endregion
@@ -154,7 +192,12 @@ namespace BugTracker.Controllers
 
         public IActionResult Edit(int projectId, int ticketId)
         {
-            Project project = _projectRepo.Find(projectId);
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            UserProject up = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId);
+
+            Project project = up.Project;
             Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Reporter,Developer,Reviewer,Priority,Status,Type");
 
             IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
@@ -162,6 +205,8 @@ namespace BugTracker.Controllers
             IEnumerable<TicketAttachment> attachments = _ticketRepo.GetAllAttachments(ticketId);
             IEnumerable<TicketComment> comments = _ticketRepo.GetAllComments(ticketId);
             IEnumerable<HistoryChange> changes = _ticketRepo.GetAllChanges(ticketId);
+
+            bool isAdminOrManager = isAdmin || up.ProjectRoleId == WC.ProjectManagerId;
 
             EditTicketVM editTicketVM = new EditTicketVM
             {
@@ -172,7 +217,11 @@ namespace BugTracker.Controllers
                 Attachments = attachments,
                 Comments = comments,
                 Comment = new TicketComment(),
-                HistoryChanges = changes
+                HistoryChanges = changes,
+                // Can edit if user is Admin, Project Manager or Reporter
+                CanEditTicket = isAdminOrManager || up.ProjectRoleId == WC.ReporterId,
+                // Can edit if user is Admin or Project Manager
+                CanEditDev = isAdminOrManager
             };
 
             return View(editTicketVM);
@@ -182,10 +231,22 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         [ActionName("Edit")]
         public IActionResult EditPost(int id, string title, string description, string createdAt, string closedAt,
-            int projectId, string reporterId, string developerId, string reviewerId, int statusId, int priorityId, int typeId, string currentUserId)
+            int projectId, string reporterId, string developerId, string reviewerId, int statusId, int priorityId,
+            int typeId, string currentUserId, bool canEditTicket = false)
         {
             string message = null;
             string messageType = WC.MessageTypeSuccess;
+
+            try
+            {
+                if (!canEditTicket) throw new UnauthorizedAccessException();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                message = "You are not allowed to edit this ticket";
+                messageType = WC.MessageTypeError;
+                return Json(new { redirectToUrl = Url.Action(nameof(Index), new { projectId = projectId, messageType, message }) });
+            }
 
             DateTime createdDate = DateTime.Parse(createdAt);
             DateTime? closedDate = closedAt != null ? DateTime.Parse(closedAt) : null;
@@ -230,7 +291,7 @@ namespace BugTracker.Controllers
                 Console.WriteLine(e.Message);
             }
 
-            return Json(new { redirectToUrl = Url.Action(nameof(Index), new { id = ticket.ProjectId, messageType, message }) });
+            return Json(new { redirectToUrl = Url.Action(nameof(Index), new { projectId = ticket.ProjectId, messageType, message }) });
         }
 
         private List<HistoryChange> GetHistoryChanges(Ticket ticket, Ticket oldTicket, string userId)
@@ -305,10 +366,14 @@ namespace BugTracker.Controllers
         #region Change Ticket Status
 
         [HttpGet]
-        public IActionResult ChangeStatus(int id)
+        public IActionResult ChangeStatus(int ticketId, int projectId)
         {
-            IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
-            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == id, includeProperties: "Status");
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId);
+
+            IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllAllowedStatuses(userProject.ProjectRoleId, isAdmin);
+            Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Status");
 
             ChangeTicketStatusVM changeTicketStatusVM = new ChangeTicketStatusVM()
             {
@@ -389,7 +454,7 @@ namespace BugTracker.Controllers
                 return RedirectToAction(nameof(Index), "Home");
 
             if (ticketId <= 0)
-                return RedirectToAction(nameof(Index), new { id = projectId });
+                return RedirectToAction(nameof(Index), new { projectId = projectId });
 
             string webRootPath = _web.WebRootPath;
             var files = HttpContext.Request.Form.Files;
@@ -404,14 +469,8 @@ namespace BugTracker.Controllers
                 }
 
                 // Upload file
-                string uploadFolder = webRootPath + WC.AttachmentsPath;
                 string filename = files[0].FileName;
-                long size = files[0].Length;
-
-                using (var fileStream = new FileStream(Path.Combine(uploadFolder, filename), FileMode.Create))
-                {
-                    files[0].CopyTo(fileStream);
-                }
+                HelperFunctions.UploadFile(files[0], webRootPath);
 
                 // Add a reference to the ticket in the db
                 TicketAttachment attachment = new TicketAttachment
@@ -420,7 +479,7 @@ namespace BugTracker.Controllers
                     TicketId = ticketId,
                     UserId = userId,
                     CreatedAt = DateTime.Now,
-                    Size = size
+                    Size = files[0].Length
                 };
 
                 // Create the ticket history record
@@ -605,13 +664,20 @@ namespace BugTracker.Controllers
         [HttpGet]
         public IActionResult ChangeDeveloper(int projectId, int ticketId)
         {
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId, includeProperties: null);
+
             IEnumerable<UserProject> users = _db.UsersProjects.Include(u => u.User).Where(u => u.ProjectId == projectId && u.ProjectRoleId == WC.DeveloperId);
 
             ChangeTicketDeveloperVM changeDeveloperVM = new ChangeTicketDeveloperVM()
             {
                 Users = users,
                 SelectedUser = new AppUser(),
-                TicketId = ticketId
+                TicketId = ticketId,
+                // Can edit if user is Admin or Project Manager
+                CanEditDev = isAdmin || userProject.ProjectRoleId == WC.ProjectManagerId
             };
 
             return PartialView("EditTicketPage/Modals/_ChangeTicketDeveloperModal", changeDeveloperVM);
@@ -620,9 +686,22 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("ChangeDeveloper")]
-        public IActionResult ChangeDeveloperPost(int ticketId, string userId, AppUser selectedUser)
+        public IActionResult ChangeDeveloperPost(int ticketId, AppUser selectedUser)
         {
+            string userId = _userManager.GetUserId(HttpContext.User);
             Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Developer");
+
+            try
+            {
+                bool canEditDev = bool.Parse(Request.Form["canEditDev"]);
+                if (!canEditDev) throw new UnauthorizedAccessException();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                string message = "You are not allowed to change the developer";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
+                return RedirectToAction(nameof(Edit), new { ticket.ProjectId, ticketId });
+            }
 
             if (ticket.DeveloperId == selectedUser.Id)
             {

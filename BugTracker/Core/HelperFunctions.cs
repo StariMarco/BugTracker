@@ -7,6 +7,7 @@ using System.Text;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace BugTracker.Core
 {
@@ -129,6 +130,17 @@ namespace BugTracker.Core
             if (val == null || val == 0) return "To Do";
 
             return WC.StatusNameMap[val ?? 1];
+        }
+
+        public static void UploadFile(IFormFile file, string webRootPath)
+        {
+            string uploadFolder = webRootPath + WC.AttachmentsPath;
+            string filename = file.FileName;
+
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, filename), FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
         }
 
         public static void DeleteFile(IWebHostEnvironment web, string filename)

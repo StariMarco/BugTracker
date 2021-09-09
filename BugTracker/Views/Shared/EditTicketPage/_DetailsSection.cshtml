@@ -25,19 +25,23 @@
         <span>Developer</span>
         <div class="detail-value">
             <input id="inputDeveloper" asp-for="Ticket.DeveloperId" hidden value="@Model.Ticket.DeveloperId" />
-            <button type="button" class="btn-select-user"
-                    data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
-                @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
-                {
-                    string devColor = HelperFunctions.GetAvatarColor(@Model.Ticket.ReporterId);
-                    <div class="avatar-small" style="margin-right: 10px; background-color: @devColor">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
-                    @Model.Ticket.Developer?.FullName
-                }
-                else
-                {
-                    <div>Select user</div>
-                }
-            </button>
+            @{
+                string disabledBtnClass = Model.CanEditDev ? "" : "disabled";
+
+                <button type="button" class="@disabledBtnClass btn-select-user"
+                        data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
+                    @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
+                    {
+                        string devColor = HelperFunctions.GetAvatarColor(@Model.Ticket.ReporterId);
+                        <div class="avatar-small" style="margin-right: 10px; background-color: @devColor">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
+                        @Model.Ticket.Developer?.FullName
+                    }
+                    else
+                    {
+                        <div>Select user</div>
+                    }
+                </button>
+            }
         </div>
         <span>Reviewer</span>
         <div class="detail-value">
@@ -52,21 +56,25 @@
         <div style="display: flex; justify-content: start; align-items: center">
             <input id="inputStatus" asp-for="Ticket.StatusId" hidden value="@Model.Ticket.StatusId" />
             <button type="button" class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value"
-                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?id=@Model.Ticket.Id">
+                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?ticketId=@Model.Ticket.Id&projectId=@Model.Project.Id">
                 @Model.Ticket.Status.Name
                 <i class="fas fa-chevron-down" style="margin-left: 6px;"></i>
             </button>
         </div>
-        <span>Priority</span>
-        <div class="detail-value">
-            <select id="inputPriority" style="width: 100%" class="text-input-ticket" asp-for="Ticket.PriorityId" asp-items="@Model.Priorities"></select>
-            <span asp-validation-for="Ticket.PriorityId" class="text-error"></span>
-        </div>
-        <span>Type</span>
-        <div class="detail-value">
-            <select id="inputType" style="width: 100%" class="text-input-ticket" asp-for="Ticket.TypeId" asp-items="@Model.Types"></select>
-            <span asp-validation-for="Ticket.TypeId" class="text-error"></span>
-        </div>
+        @{
+            string disabledClass = Model.CanEditTicket ? "" : "disabled";
+
+            <span>Priority</span>
+            <div class="detail-value">
+                <select id="inputPriority" style="width: 100%" class="@disabledClass text-input-ticket" asp-for="Ticket.PriorityId" asp-items="@Model.Priorities"></select>
+                <span asp-validation-for="Ticket.PriorityId" class="text-error"></span>
+            </div>
+            <span>Type</span>
+            <div class="detail-value">
+                <select id="inputType" style="width: 100%" class="@disabledClass text-input-ticket" asp-for="Ticket.TypeId" asp-items="@Model.Types"></select>
+                <span asp-validation-for="Ticket.TypeId" class="text-error"></span>
+            </div>
+        }
         <span>Created</span>
         <div class="detail-value">
             <input id="inputCreatedAt" type="datetime" asp-for="Ticket.CreatedAt" hidden value="@Model.Ticket.CreatedAt" />

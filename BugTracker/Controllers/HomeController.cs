@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
-using BugTracker.Data;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using BugTracker.Data.Repository.IRepository;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Core;
-using BugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace BugTracker.Controllers
 {
@@ -24,21 +21,44 @@ namespace BugTracker.Controllers
         private readonly IAppUserRepository _appUserRepo;
         private readonly IUserProjectRepository _userProjectRepo;
         private readonly INotyfService _notyf;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, INotyfService notyf)
+        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepo, IAppUserRepository appUserRepo,
+            IUserProjectRepository userProjectRepo, INotyfService notyf, UserManager<AppUser> userManager)
         {
             _logger = logger;
             _projectRepo = projectRepo;
             _appUserRepo = appUserRepo;
             _userProjectRepo = userProjectRepo;
             _notyf = notyf;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
-            List<Project> projects = _projectRepo.GetAll().ToList() ?? new List<Project>();
+            string userId = _userManager.GetUserId(HttpContext.User);
+            List<UserProject> userProjects = new List<UserProject>();
 
-            return View(projects);
+            if (User.IsInRole(WC.AdminRole))
+            {
+                var projects = _projectRepo.GetAll().ToList();
+
+                foreach (var obj in projects)
+                {
+                    userProjects.Add(new UserProject
+                    {
+                        Project = obj,
+                        ProjectId = obj.Id,
+                        UserId = userId,
+                        ProjectRoleId = WC.ProjectManagerId
+                    });
+                }
+
+            }
+            else
+                userProjects = _userProjectRepo.GetAll(o => o.UserId == userId, includeProperties: "Project").ToList() ?? new List<UserProject>();
+
+            return View(userProjects);
         }
 
         public IActionResult Create()

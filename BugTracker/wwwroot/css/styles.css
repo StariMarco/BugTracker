@@ -299,6 +299,11 @@ a {
     margin: 0 auto;
 }
 
+.disabled {
+    pointer-events: none;
+    border: none !important;
+}
+
 /* NavBar */
 .nav {
     height: var(--navbar-height);
@@ -1254,6 +1259,9 @@ label {
 .timeline-content {
     color: var(--color-secondary-text);
     margin-top: 12px;
+    display: flex;
+    justify-content: start;
+    align-items: start;
 }
 
 .hidden {

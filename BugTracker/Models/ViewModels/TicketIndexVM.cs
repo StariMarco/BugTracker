@@ -10,5 +10,6 @@ namespace BugTracker.Models.ViewModels
         public IEnumerable<Ticket> Tickets { get; set; }
         public IEnumerable<SelectListItem> Statuses { get; set; }
         public IEnumerable<SelectListItem> Types { get; set; }
+        public bool CanCreateTicket { get; set; }
     }
 }

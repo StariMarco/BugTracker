@@ -5,58 +5,72 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
-<div class="project-main">
-    <partial name="_SideNav" />
-    <div class="project-body">
-        <h1 style="margin-bottom: 25px;">Edit Project</h1>
+@{
+    bool canUserEdit = ViewBag.CanUserEdit;
+    string pageTitle = canUserEdit ? "Edit Project" : "Project Info";
+    string disabledClass = canUserEdit ? "" : "disabled";
 
-        <form method="post" asp-action="Settings">
-            <input type="datetime" asp-for="CreatedAt" hidden value="@Model.CreatedAt" />
-            <input asp-for="CreatorId" hidden value="@Model.CreatorId" />
+    <div class="project-main">
+        <partial name="_SideNav" />
+        <div class="project-body">
+            <h1 style="margin-bottom: 25px;">@pageTitle</h1>
 
-            <div class="form-group-contained">
-                <label asp-for="Title">Title*</label>
-                <input asp-for="Title" class="text-input-small" />
-                <span asp-validation-for="Title" class="text-error"></span>
-            </div>
-            <div class="form-group-contained">
-                <label asp-for="Type">Project type*</label>
-                <input asp-for="Type" class="text-input-small" placeholder="eg. Software, Marketing..." />
-                <span asp-validation-for="Type" class="text-error"></span>
-            </div>
-            <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 20px;">
-                <label asp-for="Description"></label>
-                <textarea rows="12" asp-for="Description" class="text-input-small" placeholder="Insert a description of the project..."></textarea>
-                <span asp-validation-for="Description" class="text-error"></span>
-            </div>
-            <div class="form-group-contained" style="margin-bottom: 40px">
-                <label>Project Creator</label>
-                <div class="fake-input">
-                    @Model.Creator.FullName - @Model.Creator.Email
+            <form method="post" asp-action="Settings">
+                <input type="datetime" asp-for="CreatedAt" hidden value="@Model.CreatedAt" />
+                <input type="datetime" asp-for="Id" hidden value="@Model.Id" />
+                <input asp-for="CreatorId" hidden value="@Model.CreatorId" />
+
+                <div class="form-group-contained">
+                    <label asp-for="Title">Title*</label>
+                    <input asp-for="Title" class="@disabledClass text-input-small" />
+                    <span asp-validation-for="Title" class="text-error"></span>
                 </div>
-            </div>
-
-            <div style="display: flex; flex-direction: row; margin-bottom: 40px;">
-                <button type="submit" style="margin-right: 10px;">Update</button>
-                <button type="submit" class="btn-secondary" asp-controller="Ticket" asp-action="Index" asp-route-id="@Model.Id">Back</button>
-            </div>
-
-            <h2>Danger Zone</h2>
-            <section class="danger-zone-container">
-                <div class="danger-zone-item">
-                    <p>
-                        <b>Delete this project (@Model.Title)</b><br />
-                        Once you delete a project, there is no going back. Please be certain.
-                    </p>
-                    <button type="submit" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id"
-                            onclick="return confirm('Are you sure you want to remove @Model.Title?')">
-                        Delete project
-                    </button>
+                <div class="form-group-contained">
+                    <label asp-for="Type">Project type*</label>
+                    <input asp-for="Type" class="@disabledClass text-input-small" placeholder="eg. Software, Marketing..." />
+                    <span asp-validation-for="Type" class="text-error"></span>
                 </div>
-            </section>
-        </form>
+                <div class="form-group-contained" style="max-width: 520px; margin-top: 20px; margin-bottom: 20px;">
+                    <label asp-for="Description"></label>
+                    <textarea rows="12" asp-for="Description" class="@disabledClass text-input-small" placeholder="Insert a description of the project..."></textarea>
+                    <span asp-validation-for="Description" class="text-error"></span>
+                </div>
+                <div class="form-group-contained" style="margin-bottom: 40px">
+                    <label>Project Creator</label>
+                    <div class="fake-input">
+                        @Model.Creator.FullName - @Model.Creator.Email
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: row; margin-bottom: 40px;">
+                    <input hidden id="canUserEdit" name="canUserEdit" value="@canUserEdit.ToString()" />
+                    @if (canUserEdit)
+                    {
+                        <button type="submit" style="margin-right: 10px;">Update</button>
+                    }
+                    <button type="submit" class="btn-secondary" asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Id">Back</button>
+                </div>
+
+                @if (canUserEdit)
+                {
+                    <h2>Danger Zone</h2>
+                    <section class="danger-zone-container">
+                        <div class="danger-zone-item">
+                            <p>
+                                <b>Delete this project (@Model.Title)</b><br />
+                                Once you delete a project, there is no going back. Please be certain.
+                            </p>
+                            <button type="submit" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id" asp-route-canDelete="@canUserEdit"
+                                    onclick="return confirm('Are you sure you want to remove @Model.Title?')">
+                                Delete project
+                            </button>
+                        </div>
+                    </section>
+                }
+            </form>
+        </div>
     </div>
-</div>
+}
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />

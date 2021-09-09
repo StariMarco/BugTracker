@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BugTracker.Core;
-using BugTracker.Data;
 using BugTracker.Data.Repository.IRepository;
 using BugTracker.Models;
 using BugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class ProjectController : Controller
     {
         private readonly IProjectRoleRepository _projetRoleRepo;
@@ -27,8 +28,11 @@ namespace BugTracker.Controllers
         private readonly ITicketRepository _ticketRepo;
         private readonly INotyfService _notyf;
         private readonly IWebHostEnvironment _web;
+        private readonly UserManager<AppUser> _userManager;
 
-        public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo, IUserProjectRepository userProjectRepo, ITicketRepository ticketRepo, INotyfService notyf, IWebHostEnvironment web)
+        public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo,
+            IUserProjectRepository userProjectRepo, ITicketRepository ticketRepo, INotyfService notyf,
+            IWebHostEnvironment web, UserManager<AppUser> userManager)
         {
             _projetRoleRepo = projetRoleRepo;
             _projectRepo = projectRepo;
@@ -37,13 +41,20 @@ namespace BugTracker.Controllers
             _ticketRepo = ticketRepo;
             _notyf = notyf;
             _web = web;
+            _userManager = userManager;
         }
 
-        public IActionResult Settings(int id)
+        public IActionResult Settings(int projectId)
         {
-            Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
 
-            return View(project);
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId, includeProperties: "Project,Project.Creator");
+
+            // Can edit if admin or project manager
+            ViewBag.CanUserEdit = isAdmin || userProject.ProjectRoleId == WC.ProjectManagerId;
+
+            return View(userProject.Project);
         }
 
         [HttpPost]
@@ -53,42 +64,60 @@ namespace BugTracker.Controllers
         {
             try
             {
+                bool canUserEdit = bool.Parse(Request.Form["canUserEdit"]);
+                if (!canUserEdit) throw new UnauthorizedAccessException();
+
                 _projectRepo.Update(project);
                 _projectRepo.Save();
 
                 string message = "The project was updated successfully";
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
+            catch (UnauthorizedAccessException)
+            {
+                string message = "You do not have the permission to edit this project";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
+            }
             catch (Exception)
             {
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Index), nameof(Ticket), new { id = project.Id });
+            return RedirectToAction(nameof(Index), nameof(Ticket), new { projectId = project.Id });
         }
 
-        public IActionResult Users(int id, string userfilter = null, int? rolefilter = null)
+        public IActionResult Users(int projectId, string userfilter = null, int? rolefilter = null)
         {
-            Project project = _projectRepo.FirstOrDefault(u => u.Id == id, includeProperties: "Creator");
-            IEnumerable<UserProject> userProjects = _userProjectRepo.GetAll(p => p.ProjectId == id, includeProperties: "User,ProjectRole");
+            string userId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            Project project = _projectRepo.FirstOrDefault(u => u.Id == projectId, includeProperties: "Creator");
+            IEnumerable<UserProject> userProjects = _userProjectRepo.GetAll(p => p.ProjectId == projectId, includeProperties: "User,ProjectRole");
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
             // Filter the userProjects
             userProjects = HelperFunctions.FilterUserProjects(userProjects, userfilter, rolefilter);
+
+            // Check if current user is manager
+            bool isManager = userProjects.Where(o => o.UserId == userId && o.ProjectRoleId == WC.ProjectManagerId).Count() > 0;
 
             // Prepare the VM for the view
             ProjectUsersVM projectUsersVM = new ProjectUsersVM()
             {
                 Project = project,
                 UserProjects = userProjects,
-                ProjectRoles = roles
+                ProjectRoles = roles,
+                // Can edit or add user if admin or project manager
+                CanEditUsers = isAdmin || isManager
             };
 
             return View(projectUsersVM);
         }
 
-        public IActionResult EditUserRole(string userId, int projectId)
+        public IActionResult EditUserRole(string userId, int projectId, bool canEdit = false)
         {
+            if (!canEdit) return RedirectToAction(nameof(Users), new { projectId = projectId });
+
             UserProject userProject = _userProjectRepo.FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId, includeProperties: "User,ProjectRole");
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
@@ -120,7 +149,7 @@ namespace BugTracker.Controllers
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
+            return RedirectToAction(nameof(Users), new { projectId = userProject.ProjectId });
         }
 
         [HttpPost]
@@ -140,22 +169,28 @@ namespace BugTracker.Controllers
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
+            return RedirectToAction(nameof(Users), new { projectId = userProject.ProjectId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Delete")]
-        public IActionResult DeleteProject(Project project)
+        public IActionResult DeleteProject(Project project, bool canDelete = false)
         {
             try
             {
+                if (!canDelete) throw new UnauthorizedAccessException();
                 // Remove the project from the db (with all the tickets, comments ecc...)
                 _projectRepo.RemoveProject(_web, _ticketRepo, project);
                 _projectRepo.Save();
 
                 string message = "The project was deleted successfully";
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                string message = "You do not have the permission to delete this project";
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, message);
             }
             catch (Exception)
             {
@@ -167,7 +202,7 @@ namespace BugTracker.Controllers
 
         [HttpGet]
         [ActionName("Select")]
-        public IActionResult SelectUser(int id)
+        public IActionResult SelectUser(int id, bool canEdit = false)
         {
             IEnumerable<AppUser> users = _appUserRepo.GetAll();
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
@@ -176,7 +211,8 @@ namespace BugTracker.Controllers
             {
                 Users = users,
                 UserProject = new UserProject() { ProjectId = id },
-                ProjectRoles = roles
+                ProjectRoles = roles,
+                CanAddUser = canEdit
             };
 
             return PartialView("_SelectUserProjectModal", selectUserVM);
@@ -212,7 +248,7 @@ namespace BugTracker.Controllers
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
             }
 
-            return RedirectToAction(nameof(Users), new { id = userProject.ProjectId });
+            return RedirectToAction(nameof(Users), new { projectId = userProject.ProjectId });
         }
     }
 }

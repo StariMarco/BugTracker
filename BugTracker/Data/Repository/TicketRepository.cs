@@ -33,6 +33,40 @@ namespace BugTracker.Data.Repository
             });
         }
 
+        public IEnumerable<SelectListItem> GetAllAllowedStatuses(int userRole, bool isAdmin = false)
+        {
+            IEnumerable<SelectListItem> statuses = _db.TicketStatus.Select((TicketStatus i) => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
+
+            if (isAdmin) return statuses;
+
+            switch (userRole)
+            {
+                case WC.ProjectManagerId:
+                    // Are allowed to do anything
+                    break;
+                case WC.ReporterId:
+                    // Are not allowed to update the status to done
+                    statuses = statuses.Where(s => s.Value == WC.StatusToDo.ToString());
+                    break;
+                case WC.DeveloperId:
+                    // Are not allowed to update the status to done
+                    statuses = statuses.Where(s => s.Value != WC.StatusDone.ToString());
+                    break;
+                case WC.ReviewerId:
+                    // Are only allowed to update the status from in review to done and viceversa
+                    statuses = statuses.Where(s => s.Value == WC.StatusDone.ToString() || s.Value == WC.StatusInReview.ToString());
+                    break;
+                default:
+                    return Enumerable.Empty<SelectListItem>();
+            }
+
+            return statuses;
+        }
+
         public IEnumerable<SelectListItem> GetAllTypes()
         {
             return _db.TicketTypes.Select((TicketType i) => new SelectListItem
