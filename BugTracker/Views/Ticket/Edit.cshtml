@@ -8,6 +8,7 @@
 
 @{
     string disabledClass = Model.CanEditTicket ? "" : "disabled";
+    string hiddenClass = Model.CanEditTicket ? "" : "hidden";
     string descPlaceholder = Model.CanEditTicket ? "Write a description for the project..." : null;
     string descClass = (!Model.CanEditTicket && string.IsNullOrEmpty(Model.Ticket.Description)) ? "hidden" : "";
 
@@ -36,10 +37,7 @@
                                 class="auto-resize-textarea text-input-ticket" style="font-size: 22px; font-weight: 600; width: 100%;" placeholder="Title"></textarea>*@
                             <span asp-validation-for="Ticket.Title" class="text-error"></span>
                         </div>
-                        @if (Model.CanEditTicket)
-                        {
-                            <button id="saveBtn" type="button" class="save-changes-button">Save Changes</button>
-                        }
+                        <button id="saveBtn" type="button" class="@hiddenClass save-changes-button">Save Changes</button>
                     </header>
 
                     @*Description*@
@@ -107,9 +105,7 @@
          }
     </script>
 
-    <script>const input = document.getElementById("upload");
-
-        const saveBtn = document.getElementById("saveBtn");
+    <script>const saveBtn = document.getElementById("saveBtn");
         saveBtn.addEventListener("click", () => {
             $.ajax({
                 url: "/Ticket/Edit",
@@ -122,9 +118,5 @@
                     window.location.href = response.redirectToUrl;
                 }
             });
-        });
-
-        input.addEventListener("change", () => {
-            $("#attachmentsForm").submit();
         });</script>
 }

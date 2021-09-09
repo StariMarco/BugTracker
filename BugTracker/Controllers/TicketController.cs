@@ -469,8 +469,14 @@ namespace BugTracker.Controllers
                 }
 
                 // Upload file
+                string uploadFolder = webRootPath + WC.AttachmentsPath;
                 string filename = files[0].FileName;
-                HelperFunctions.UploadFile(files[0], webRootPath);
+                long size = files[0].Length;
+
+                using (var fileStream = new FileStream(Path.Combine(uploadFolder, filename), FileMode.Create))
+                {
+                    files[0].CopyTo(fileStream);
+                }
 
                 // Add a reference to the ticket in the db
                 TicketAttachment attachment = new TicketAttachment
@@ -479,7 +485,7 @@ namespace BugTracker.Controllers
                     TicketId = ticketId,
                     UserId = userId,
                     CreatedAt = DateTime.Now,
-                    Size = files[0].Length
+                    Size = size
                 };
 
                 // Create the ticket history record
