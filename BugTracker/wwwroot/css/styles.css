@@ -132,6 +132,7 @@ button {
     }
 
 .btn {
+    -webkit-appearance: none;
     background-color: var(--color-primary);
     border-radius: var(--border-radius);
     border: none;
@@ -183,6 +184,7 @@ a {
     }
 
 .btn-secondary {
+    -webkit-appearance: none;
     background-color: #fff;
     color: var(--color-primary);
     transition: all 0ms;
@@ -231,6 +233,7 @@ a {
     }
 
 .btn-clear {
+    -webkit-appearance: none;
     padding: 8px 18px;
     color: var(--color-primary-text);
     background-color: #fff;

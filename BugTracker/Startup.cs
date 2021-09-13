@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification;
+using BugTracker.Core;
 using BugTracker.Data;
 using BugTracker.Data.Repository;
 using BugTracker.Data.Repository.IRepository;
@@ -66,11 +67,13 @@ namespace BugTracker
             services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
             services.AddScoped<ITicketRepository, TicketRepository>();
 
+            services.AddScoped<IDbInitializer, DbInitializer>();
+
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
@@ -89,6 +92,8 @@ namespace BugTracker
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            dbInitializer.Initialize();
 
             app.UseEndpoints(endpoints =>
             {
