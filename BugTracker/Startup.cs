@@ -42,23 +42,24 @@ namespace BugTracker
                 .AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddAuthentication().AddFacebook(options =>
-            {
-                IConfigurationSection facebookAuthSection = Configuration.GetSection("Authentication:Facebook");
-
-                options.AppId = facebookAuthSection["AppId"];
-                options.AppSecret = facebookAuthSection["AppSecret"];
-            });
-
-            services.AddAuthentication().AddGoogle(options =>
-            {
-                IConfigurationSection googleAuthSection = Configuration.GetSection("Authentication:Google");
-
-                options.ClientId = googleAuthSection["ClientId"];
-                options.ClientSecret = googleAuthSection["ClientSecret"];
-            });
-
             services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
+
+            //services.AddAuthentication().AddFacebook(options =>
+            //{
+            //    IConfigurationSection facebookAuthSection = Configuration.GetSection("Authentication:Facebook");
+
+            //    options.AppId = facebookAuthSection["AppId"];
+            //    options.AppSecret = facebookAuthSection["AppSecret"];
+            //});
+
+            //services.AddAuthentication().AddGoogle(options =>
+            //{
+            //    IConfigurationSection googleAuthSection = Configuration.GetSection("Authentication:Google");
+
+            //    options.ClientId = googleAuthSection["ClientId"];
+            //    options.ClientSecret = googleAuthSection["ClientSecret"];
+            //});
+
 
             // Repositories
             services.AddScoped<IProjectRepository, ProjectRepository>();

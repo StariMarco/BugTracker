@@ -16,7 +16,7 @@
     const priorityId = document.getElementById("inputPriority").value;
     const typeId = document.getElementById("inputType").value;
 
-    const canEditTicket = document.getElementById("canEditTicket").value;
+    const canEditTicket = document.getElementById("canEditTicket").value.toLowerCase() === 'true';
 
     return {
         id: ticketId,

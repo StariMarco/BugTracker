@@ -26,7 +26,7 @@
                 <button type="submit" class="auth-button">Register</button>
             </div>
         </form>
-        <h5 style="font-weight: 400; text-align: center; margin-bottom: 15px;">OR</h5>
+        @*<h5 style="font-weight: 400; text-align: center; margin-bottom: 15px;">OR</h5>
         @{ if ((Model.ExternalLogins?.Count ?? 0) > 0)
             {
 <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
@@ -37,7 +37,7 @@
     Continue with @provider.DisplayName
 </button>}
     </div>
-</form> } }
+</form> } }*@
         <hr />
         <div class="form-group">
             <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" style="text-align: center;">Already have an account? Log in</a>

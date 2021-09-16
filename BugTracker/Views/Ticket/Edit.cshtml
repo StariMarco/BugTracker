@@ -24,7 +24,7 @@
             <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
             <input id="inputProjectId" asp-for="Ticket.ProjectId" hidden value="@Model.Ticket.ProjectId" />
             <input id="currentUserId" hidden value="@UserManager.GetUserId(User)" />
-            <input id="canEditTicket" hidden value="@Model.CanEditTicket" />
+            <input id="canEditTicket" hidden value="@Model.CanEditTicket.ToString()" />
             <div id="ticket-details-container">
 
                 <section id="col-left">

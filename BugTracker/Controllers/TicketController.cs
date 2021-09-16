@@ -507,9 +507,12 @@ namespace BugTracker.Controllers
                 string message = "Attachment added successfully";
                 HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeSuccess, message);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeGeneralError);
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.ToString());
+                Console.WriteLine(e.StackTrace);
+                HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeError, e.ToString());
             }
 
 

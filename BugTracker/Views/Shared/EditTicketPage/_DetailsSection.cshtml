@@ -32,7 +32,7 @@
                         data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
                     @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
                     {
-                        string devColor = HelperFunctions.GetAvatarColor(@Model.Ticket.ReporterId);
+                        string devColor = HelperFunctions.GetAvatarColor(@Model.Ticket.DeveloperId);
                         <div class="avatar-small" style="margin-right: 10px; background-color: @devColor">@Model.Ticket.Developer?.FullName.FirstOrDefault()</div>
                         @Model.Ticket.Developer?.FullName
                     }
