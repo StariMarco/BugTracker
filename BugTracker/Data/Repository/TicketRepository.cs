@@ -7,6 +7,7 @@ using BugTracker.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BugTracker.Data.Repository
 {
@@ -85,7 +86,7 @@ namespace BugTracker.Data.Repository
             });
         }
 
-        public void RemoveTicket(IWebHostEnvironment web, Ticket obj)
+        public void RemoveTicket(IConfiguration configuration, Ticket obj)
         {
             int ticketId = obj.Id;
 
@@ -94,7 +95,7 @@ namespace BugTracker.Data.Repository
 
             // Delete all attachments
             var attachments = _db.TicketAttachments.Where(a => a.TicketId == ticketId).ToList();
-            attachments.ForEach(a => HelperFunctions.DeleteFile(web, a.File));
+            attachments.ForEach(a => HelperFunctions.DeleteFile(configuration, a.DocumentName));
             _db.TicketAttachments.RemoveRange(attachments);
 
             // Delete all comments

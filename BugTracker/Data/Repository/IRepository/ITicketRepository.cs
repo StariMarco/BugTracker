@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 
 namespace BugTracker.Data.Repository.IRepository
 {
@@ -10,7 +11,7 @@ namespace BugTracker.Data.Repository.IRepository
     {
         void Update(Ticket obj);
 
-        void RemoveTicket(IWebHostEnvironment web, Ticket obj);
+        void RemoveTicket(IConfiguration configuration, Ticket obj);
 
         public IEnumerable<SelectListItem> GetAllStatuses();
         public IEnumerable<SelectListItem> GetAllAllowedStatuses(int userRole, bool isAdmin = false);

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,10 +30,11 @@ namespace BugTracker.Controllers
         private readonly INotyfService _notyf;
         private readonly IWebHostEnvironment _web;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _configuration;
 
         public ProjectController(IProjectRoleRepository projetRoleRepo, IProjectRepository projectRepo, IAppUserRepository appUserRepo,
             IUserProjectRepository userProjectRepo, ITicketRepository ticketRepo, INotyfService notyf,
-            IWebHostEnvironment web, UserManager<AppUser> userManager)
+            IWebHostEnvironment web, UserManager<AppUser> userManager, IConfiguration configuration)
         {
             _projetRoleRepo = projetRoleRepo;
             _projectRepo = projectRepo;
@@ -42,6 +44,7 @@ namespace BugTracker.Controllers
             _notyf = notyf;
             _web = web;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public IActionResult Settings(int projectId)
@@ -181,7 +184,7 @@ namespace BugTracker.Controllers
             {
                 if (!canDelete) throw new UnauthorizedAccessException();
                 // Remove the project from the db (with all the tickets, comments ecc...)
-                _projectRepo.RemoveProject(_web, _ticketRepo, project);
+                _projectRepo.RemoveProject(_configuration, _ticketRepo, project);
                 _projectRepo.Save();
 
                 string message = "The project was deleted successfully";

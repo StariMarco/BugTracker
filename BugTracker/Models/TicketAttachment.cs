@@ -12,6 +12,12 @@ namespace BugTracker.Models
         [Required]
         public string File { get; set; }
 
+        [Required]
+        public string Url { get; set; }
+
+        [Required]
+        public string DocumentName { get; set; }
+
         /// Size in bytes
         public long Size { get; set; }
 

@@ -14,6 +14,7 @@
 		<NoWin32Manifest>true</NoWin32Manifest>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="AWSSDK.S3" Version="3.7.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
@@ -59,17 +60,17 @@
 		<Folder Include="Models\ViewModels\" />
 		<Folder Include="Core\" />
 		<Folder Include="Views\Ticket\" />
-		<Folder Include="wwwroot\assets\" />
-		<Folder Include="wwwroot\assets\attachments\" />
 		<Folder Include="Views\Shared\EditTicketPage\" />
 		<Folder Include="Views\Shared\EditTicketPage\Modals\" />
 		<Folder Include="wwwroot\js\editTicketPage\" />
+		<Folder Include="wwwroot\App_Data\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Remove="wwwroot\css\" />
 		<Content Remove="wwwroot\images\" />
-		<Content Remove="wwwroot\assets\attachments\" />
-		<Content Remove="wwwroot\assets\attachments\BugTracker.png" />
 		<Content Remove="wwwroot\js\editTicketPage\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include=".ebextensions\BugTracker.config" />
 	</ItemGroup>
 </Project>

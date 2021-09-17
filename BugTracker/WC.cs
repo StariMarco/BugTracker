@@ -6,7 +6,8 @@ namespace BugTracker
 {
     public static class WC
     {
-        public const string AttachmentsPath = @"\assets\attachments\";
+        public const string S3BucketName = @"bug-tracker-files";
+        public const string S3AttachmentsFolderName = @"/attachments";
 
         public const string AdminRole = "Admin";
         public const string UserRole = "User";
