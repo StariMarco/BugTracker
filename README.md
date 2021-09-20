@@ -28,7 +28,7 @@ You can try it out by navigating to https://marcostari-bugtracker.ml/ and regist
 
 For software development companies using a bug tracker is an everyday task. Bug tracking is the process of tracking bugs or errors in issues or tickets. Large systems can have hundreds or thousands of defects. Each one needs to be evaluated, monitored, and prioritized for debugging. In some cases, bugs may need to be tracked over a long period of time.
 
-`Bug Tracker` is a web app developed in C# using the framework ASP.NET MVC that can be used by enterprise companies as well as small development teams.
+`Bug Tracker` is a web app developed in C# using the framework ASP.NET MVC that can be used by companies as well as small development teams.
 
 The user can create new projects and/or partecipate in projects created by others and, depending on the role that he assumes, he can:
 
