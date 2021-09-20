@@ -382,6 +382,12 @@ namespace BugTracker.Controllers
 			IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllAllowedStatuses(userProject.ProjectRoleId, isAdmin);
 			Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Status");
 
+			// Check if the user is the dev assigned to the ticket
+			if(userProject.ProjectRoleId == WC.DeveloperId && ticket.DeveloperId != userId)
+			{
+				statuses = Enumerable.Empty<SelectListItem>();
+			}
+
 			ChangeTicketStatusVM changeTicketStatusVM = new ChangeTicketStatusVM()
 			{
 				Statuses = statuses,
@@ -398,6 +404,13 @@ namespace BugTracker.Controllers
 		public IActionResult ChangeStatusPost(TicketStatus status, int ticketId, string userId)
 		{
 			Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Status");
+
+			if(status.Id == 0)
+			{
+				string message = "You are not allowed to change the status of this ticket";
+				HelperFunctions.ManageToastMessages(_notyf, WC.MessageTypeNeutral, message);
+				return RedirectToAction(nameof(Edit), new { projectId = ticket.ProjectId, ticketId = ticketId });
+			}
 
 			if (ticket.StatusId == status.Id)
 			{
