@@ -17,6 +17,7 @@ namespace BugTracker
         public const string DeveloperRole = "Developer";
         public const string ReviewerRole = "Reviewer";
 
+        public const int AdminRoleId = 0;
         public const int ProjectManagerId = 1;
         public const int ReporterId = 2;
         public const int DeveloperId = 3;
@@ -50,6 +51,15 @@ namespace BugTracker
              {2, "In Progress" },
              {3, "In Review" },
              {4, "Done" },
+        };
+
+        public static Dictionary<int, string> ProjectRolesMap = new Dictionary<int, string>
+        {
+             {AdminRoleId, AdminRole },
+             {ProjectManagerId, ProjectManagerRole },
+             {ReporterId, ReporterRole },
+             {DeveloperId, DeveloperRole },
+             {ReviewerId, ReviewerRole },
         };
 
         public const int actionTypeCreateTicket = 1;

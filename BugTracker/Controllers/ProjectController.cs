@@ -56,6 +56,7 @@ namespace BugTracker.Controllers
 
             // Can edit if admin or project manager
             ViewBag.CanUserEdit = isAdmin || userProject.ProjectRoleId == WC.ProjectManagerId;
+            ViewBag.UserProject = userProject;
 
             return View(userProject.Project);
         }
@@ -94,7 +95,8 @@ namespace BugTracker.Controllers
             string userId = _userManager.GetUserId(HttpContext.User);
             bool isAdmin = User.IsInRole(WC.AdminRole);
 
-            Project project = _projectRepo.FirstOrDefault(u => u.Id == projectId, includeProperties: "Creator");
+            UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId, includeProperties: "Project,Project.Creator");
+
             IEnumerable<UserProject> userProjects = _userProjectRepo.GetAll(p => p.ProjectId == projectId, includeProperties: "User,ProjectRole");
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
@@ -102,12 +104,12 @@ namespace BugTracker.Controllers
             userProjects = HelperFunctions.FilterUserProjects(userProjects, userfilter, rolefilter);
 
             // Check if current user is manager
-            bool isManager = userProjects.Where(o => o.UserId == userId && o.ProjectRoleId == WC.ProjectManagerId).Count() > 0;
+            bool isManager = userProject.ProjectRoleId == WC.ProjectManagerId;
 
             // Prepare the VM for the view
             ProjectUsersVM projectUsersVM = new ProjectUsersVM()
             {
-                Project = project,
+                UserProject = userProject,
                 UserProjects = userProjects,
                 ProjectRoles = roles,
                 // Can edit or add user if admin or project manager
@@ -121,12 +123,17 @@ namespace BugTracker.Controllers
         {
             if (!canEdit) return RedirectToAction(nameof(Users), new { projectId = projectId });
 
+            string currentUserId = _userManager.GetUserId(HttpContext.User);
+            bool isAdmin = User.IsInRole(WC.AdminRole);
+
+            UserProject myUserProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, currentUserId);
+
             UserProject userProject = _userProjectRepo.FirstOrDefault(u => u.UserId == userId && u.ProjectId == projectId, includeProperties: "User,ProjectRole");
             IEnumerable<SelectListItem> roles = _projetRoleRepo.GetAllSelectListItems();
 
             EditUserProjectVM editUserProjectVM = new EditUserProjectVM
             {
-                Project = _projectRepo.Find(projectId),
+                MyUserProject = myUserProject,
                 UserProject = userProject,
                 ProjectRoles = roles
             };

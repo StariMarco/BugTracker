@@ -13,12 +13,12 @@
     string descClass = (!Model.CanEditTicket && string.IsNullOrEmpty(Model.Ticket.Description)) ? "hidden" : "";
 
     <div class="project-main">
-        <partial name="_SideNav" model="@Model.Project" />
+        <partial name="_SideNav" model="@Model.UserProject" />
         <div class="project-body">
             <div id="modalPlaceholder"></div>
 
             <div style="max-width: 25%;">
-                <a asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Project.Id"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
+                <a asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.UserProject.ProjectId"><h5 style="margin-bottom: 10px;"><i class="fas fa-arrow-alt-circle-left"></i> Back to tickets</h5></a>
             </div>
 
             <input id="inputTicketId" asp-for="Ticket.Id" hidden value="@Model.Ticket.Id" />
@@ -72,7 +72,7 @@
                                     Once you delete a ticket, there is no going back. Please be certain.
                                 </p>
                                 <form method="post" asp-action="DeleteTicket"
-                                      asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.Project.Id">
+                                      asp-route-ticketId="@Model.Ticket.Id" asp-route-projectId="@Model.UserProject.ProjectId">
                                     <input hidden id="canDeleteTicket" name="canDeleteTicket" value="@Model.CanEditTicket.ToString()" />
                                     <button type="submit" style="white-space: nowrap;"
                                             onclick="return confirm('Are you sure you want to remove this ticket?')">

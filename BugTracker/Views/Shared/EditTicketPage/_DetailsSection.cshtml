@@ -29,7 +29,7 @@
                 string disabledBtnClass = Model.CanEditDev ? "" : "disabled";
 
                 <button type="button" class="@disabledBtnClass btn-select-user"
-                        data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.Project.Id&ticketId=@Model.Ticket.Id">
+                        data-toggle="ajax-modal" data-target="#changeDeveloperModal" data-url="@Url.Action("ChangeDeveloper")?projectId=@Model.UserProject.ProjectId&ticketId=@Model.Ticket.Id">
                     @if (@Model.Ticket.Developer != null && !string.IsNullOrEmpty(@Model.Ticket.Developer.FullName))
                     {
                         string devColor = HelperFunctions.GetAvatarColor(@Model.Ticket.DeveloperId);
@@ -56,7 +56,7 @@
         <div style="display: flex; justify-content: start; align-items: center">
             <input id="inputStatus" asp-for="Ticket.StatusId" hidden value="@Model.Ticket.StatusId" />
             <button type="button" class="detail-tag @(WC.StatusClassMap[Model.Ticket.StatusId]) status-tag detail-value"
-                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?ticketId=@Model.Ticket.Id&projectId=@Model.Project.Id">
+                    data-toggle="ajax-modal" data-target="#changeStatusModal" data-url="@Url.Action("ChangeStatus")?ticketId=@Model.Ticket.Id&projectId=@Model.UserProject.ProjectId">
                 @Model.Ticket.Status.Name
                 <i class="fas fa-chevron-down" style="margin-left: 6px;"></i>
             </button>

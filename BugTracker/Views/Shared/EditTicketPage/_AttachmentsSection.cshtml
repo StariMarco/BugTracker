@@ -8,7 +8,7 @@
 
 <div class="ticket-section">
     <form id="attachmentsForm" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;"
-          asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-userId="@UserManager.GetUserId(User)" asp-action="UploadFile">
+          asp-route-projectId="@Model.UserProject.ProjectId" asp-route-ticketId="@Model.Ticket.Id" asp-route-userId="@UserManager.GetUserId(User)" asp-action="UploadFile">
         <h6 style="margin: 0;">Attachments</h6>
         <label for="upload" id="upload-btn">
             <i class="fas fa-plus"></i>
@@ -38,7 +38,7 @@
                     <td>@a.CreatedAt.ToString("d MMM yyyy hh:mm tt")</td>
                     <td class="actions-td">
                         <form method="post" title="Delete" asp-action="DeleteAttachment" asp-route-userId="@UserManager.GetUserId(User)"
-                              asp-route-projectId="@Model.Project.Id" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
+                              asp-route-projectId="@Model.UserProject.ProjectId" asp-route-ticketId="@Model.Ticket.Id" asp-route-attachmentId="@a.Id">
                             <button type="submit" onclick="return confirm('Are you sure you want to remove this attachment?')" class="grid-btn"><i class="fas fa-trash"></i></button>
                         </form>
                         <a class="grid-btn" style="margin-left: 10px; padding: 11px 18px;" href="/Ticket/DownloadFile?attachmentId=@a.Id" title="Download"><i class="fas fa-cloud-download-alt"></i></a>

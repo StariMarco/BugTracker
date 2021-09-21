@@ -19,7 +19,16 @@ namespace BugTracker.Core
         public static UserProject GetUserProject(IUserProjectRepository userProjectRepo, bool isAdmin, int projectId, string userId, string includeProperties = "Project")
         {
             Expression<Func<UserProject, bool>> filter = isAdmin ? ((UserProject u) => u.ProjectId == projectId) : ((UserProject u) => u.ProjectId == projectId && u.UserId == userId);
-            return userProjectRepo.FirstOrDefault(filter, includeProperties);
+            var userProject = userProjectRepo.FirstOrDefault(filter, includeProperties);
+            if (isAdmin) userProject.ProjectRoleId = 0;
+
+            userProject.ProjectRole = new ProjectRole
+            {
+                Id = userProject.ProjectRoleId,
+                Name = WC.ProjectRolesMap[userProject.ProjectRoleId]
+            };
+
+            return userProject;
         }
     }
 }

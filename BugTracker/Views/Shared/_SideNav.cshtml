@@ -1,4 +1,4 @@
-﻿@model BugTracker.Models.Project;
+﻿@model BugTracker.Models.UserProject;
 
 @using Microsoft.AspNetCore.Identity
 @using BugTracker.Core
@@ -7,41 +7,41 @@
 @inject UserManager<AppUser> UserManager
 
 <div class="sidenav">
-    <div class="sidenav-content">
-        <section class="project-info-section" style="margin-bottom: 24px">
-            <div class="project-icon">@Model.Title.FirstOrDefault()</div>
-            <div>
-                <h3>@Model.Title</h3>
-                <span style="font-size: 13px; font-weight: 400; color: #6B778C;">@Model.Type</span>
-            </div>
-        </section>
-        <section class="project-info-section" style="margin-bottom: 40px;">
-            <div class="project-icon" style="background-color: #1B55C5">D</div>
-            <div>
-                <h3>Developer</h3>
-                <span style="font-size: 13px; font-weight: 400; color: #6B778C;">Your role in this project</span>
-            </div>
-        </section>
-        <hr />
-        <div class="sidenav-button-section" style="margin-top: 10px;">
-            @{
-                string userId = UserManager.GetUserId(User);
-                <a class="btn-sidenav" asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.Id">
-                    <i class="fas fa-pager"></i>Tickets
-                </a>
-                <a class="btn-sidenav" asp-controller="Project" asp-action="Users" asp-route-projectId="@Model.Id">
-                    <i class="fas fa-user-friends"></i>Manage Users
-                </a>
-                <a class="btn-sidenav" asp-controller="Project" asp-action="Settings" asp-route-projectId="@Model.Id">
-                    <i class="fas fa-cog"></i>Project Settings
-                </a>
-            }
-        </div>
-        <hr />
-        <div class="sidenav-button-section" style="margin-top: 10px;">
-            <a class="btn-sidenav" asp-controller="Home" asp-action="Index">
-                <i class="fas fa-arrow-alt-circle-left"></i>Projects
-            </a>
-        </div>
-    </div>
+	<div class="sidenav-content">
+		<section class="project-info-section" style="margin-bottom: 24px">
+			<div class="project-icon">@Model.Project.Title.FirstOrDefault()</div>
+			<div>
+				<h3>@Model.Project.Title</h3>
+				<span style="font-size: 13px; font-weight: 400; color: #6B778C;">@Model.Project.Type</span>
+			</div>
+		</section>
+		<section class="project-info-section" style="margin-bottom: 40px;">
+			<div class="project-icon" style="background-color: #1B55C5">@Model.ProjectRole?.Name.FirstOrDefault()</div>
+			<div>
+				<h3>@Model.ProjectRole?.Name</h3>
+				<span style="font-size: 13px; font-weight: 400; color: #6B778C;">Your role in this project</span>
+			</div>
+		</section>
+		<hr />
+		<div class="sidenav-button-section" style="margin-top: 10px;">
+			@{
+				string userId = UserManager.GetUserId(User);
+				<a class="btn-sidenav" asp-controller="Ticket" asp-action="Index" asp-route-projectId="@Model.ProjectId">
+					<i class="fas fa-pager"></i>Tickets
+				</a>
+				<a class="btn-sidenav" asp-controller="Project" asp-action="Users" asp-route-projectId="@Model.ProjectId">
+					<i class="fas fa-user-friends"></i>Manage Users
+				</a>
+				<a class="btn-sidenav" asp-controller="Project" asp-action="Settings" asp-route-projectId="@Model.ProjectId">
+					<i class="fas fa-cog"></i>Project Settings
+				</a>
+			}
+		</div>
+		<hr />
+		<div class="sidenav-button-section" style="margin-top: 10px;">
+			<a class="btn-sidenav" asp-controller="Home" asp-action="Index">
+				<i class="fas fa-arrow-alt-circle-left"></i>Projects
+			</a>
+		</div>
+	</div>
 </div>

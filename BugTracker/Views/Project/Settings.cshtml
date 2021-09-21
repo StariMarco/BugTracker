@@ -11,7 +11,7 @@
     string disabledClass = canUserEdit ? "" : "disabled";
 
     <div class="project-main">
-        <partial name="_SideNav" />
+        <partial name="_SideNav" model="@ViewBag.UserProject" />
         <div class="project-body">
             <h1 style="margin-bottom: 25px;">@pageTitle</h1>
 

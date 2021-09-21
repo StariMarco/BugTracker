@@ -57,7 +57,6 @@
 		<Folder Include="Data\Repository\" />
 		<Folder Include="Data\Repository\IRepository\" />
 		<Folder Include="Views\Project\" />
-		<Folder Include="Models\ViewModels\" />
 		<Folder Include="Core\" />
 		<Folder Include="Views\Ticket\" />
 		<Folder Include="Views\Shared\EditTicketPage\" />

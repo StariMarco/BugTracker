@@ -68,8 +68,7 @@ namespace BugTracker.Controllers
 
 			UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId);
 
-			Project project = userProject.Project;
-			IEnumerable<Ticket> tickets = _ticketRepo.GetAll(t => t.ProjectId == project.Id, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type", orderBy: (q) => q.OrderByDescending(t => t.CreatedAt));
+			IEnumerable<Ticket> tickets = _ticketRepo.GetAll(t => t.ProjectId == userProject.ProjectId, includeProperties: "Reporter,Developer,Reviewer,Status,Priority,Type", orderBy: (q) => q.OrderByDescending(t => t.CreatedAt));
 			IEnumerable<SelectListItem> statuses = _ticketRepo.GetAllStatuses();
 			IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
 
@@ -78,7 +77,7 @@ namespace BugTracker.Controllers
 
 			TicketIndexVM ticketIndexVM = new TicketIndexVM
 			{
-				Project = project,
+				UserProject = userProject,
 				Tickets = tickets,
 				Statuses = statuses,
 				Types = types,
@@ -96,13 +95,12 @@ namespace BugTracker.Controllers
 
 			UserProject userProject = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, id, userId);
 
-			Project project = userProject.Project;
 			IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
 			IEnumerable<SelectListItem> priorities = _ticketRepo.GetAllPriorities();
 
 			CreateTicketVM createTicketVM = new CreateTicketVM
 			{
-				Project = project,
+				UserProject = userProject,
 				Ticket = new Ticket(),
 				Types = types,
 				Priorities = priorities,
@@ -203,8 +201,6 @@ namespace BugTracker.Controllers
 			bool isAdmin = User.IsInRole(WC.AdminRole);
 
 			UserProject up = IdentityHelper.GetUserProject(_userProjectRepo, isAdmin, projectId, userId);
-
-			Project project = up.Project;
 			Ticket ticket = _ticketRepo.FirstOrDefault(t => t.Id == ticketId, includeProperties: "Reporter,Developer,Reviewer,Priority,Status,Type");
 
 			IEnumerable<SelectListItem> types = _ticketRepo.GetAllTypes();
@@ -217,7 +213,7 @@ namespace BugTracker.Controllers
 
 			EditTicketVM editTicketVM = new EditTicketVM
 			{
-				Project = project,
+				UserProject = up,
 				Ticket = ticket,
 				Priorities = priorities,
 				Types = types,
