@@ -20,10 +20,6 @@ By Marco Stari
 - jQuery
 - Amazon Web Services (Elastic Beanstalk, EC2, RDS, S3, Route53 )
 
-## How to use it
-
-You can try it out by navigating to https://marcostari-bugtracker.ml/ and registering with a new account or using the guest account.
-
 ## Description
 
 For software development companies using a bug tracker is an everyday task. Bug tracking is the process of tracking bugs or errors in issues or tickets. Large systems can have hundreds or thousands of defects. Each one needs to be evaluated, monitored, and prioritized for debugging. In some cases, bugs may need to be tracked over a long period of time.
